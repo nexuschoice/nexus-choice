@@ -8,66 +8,184 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
     body { background-color: #f3f4f6; color: #1f2937; }
     
-    header { background: #1e293b; color: white; padding: 25px 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-    header h1 { color: #f59e0b; font-size: 32px; letter-spacing: 1px; }
-    header p { margin-top: 5px; color: #9ca3af; font-size: 14px; }
+    header { background: #111827; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    header h1 { color: #f59e0b; font-size: 28px; font-weight: 800; }
+    
+    .user-auth { display: flex; align-items: center; gap: 10px; }
+    .btn-auth { background: #4285F4; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-auth:hover { background: #3367d6; }
+    .user-profile { display: flex; align-items: center; gap: 8px; color: white; }
+    .user-profile img { width: 32px; height: 32px; border-radius: 50%; }
     
     .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-    .section-title { font-size: 22px; font-weight: bold; margin-bottom: 20px; color: #1e293b; border-bottom: 2px solid #f59e0b; display: inline-block; padding-bottom: 5px; }
+    .section-title { font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #111827; border-bottom: 3px solid #f59e0b; display: inline-block; padding-bottom: 5px; }
     
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
     
-    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e5e7eb; }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); }
-    
+    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb; }
     .card img { width: 100%; height: 230px; object-fit: cover; background-color: #f9fafb; }
     
     .card-details { padding: 18px; }
     .card-details h3 { font-size: 18px; color: #111827; margin-bottom: 8px; }
     .price { font-size: 20px; color: #059669; font-weight: bold; margin-bottom: 15px; }
     
-    .btn-buy { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: #25D366; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px; border: none; cursor: pointer; transition: background 0.2s; }
-    .btn-buy:hover { background: #1eb854; }
+    .btn-buy { width: 100%; background: #f59e0b; color: white; padding: 12px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: background 0.2s; }
+    .btn-buy:hover { background: #d97706; }
     
-    footer { text-align: center; padding: 20px; color: #6b7280; font-size: 13px; margin-top: 50px; border-top: 1px solid #e5e7eb; }
+    /* Modal / Pop-up Form */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: white; padding: 25px; border-radius: 12px; max-width: 450px; width: 90%; }
+    .modal-content h2 { margin-bottom: 15px; color: #111827; font-size: 20px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+    
+    .checkout-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+    .btn-wa { background: #25D366; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
+    .btn-fb { background: #0084FF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
+    .btn-close { background: #6b7280; color: white; padding: 8px; border: none; border-radius: 6px; margin-top: 5px; cursor: pointer; width: 100%; }
+
+    footer { text-align: center; padding: 25px; color: #6b7280; font-size: 14px; margin-top: 50px; background: #fff; border-top: 1px solid #e5e7eb; }
   </style>
+
+  <!-- Firebase Modular Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV4r6Z8YGLS6U33CnptF0IDq_oGyquojY",
+      authDomain: "nexus-choice.firebaseapp.com",
+      projectId: "nexus-choice",
+      storageBucket: "nexus-choice.firebasestorage.app",
+      messagingSenderId: "914919173575",
+      appId: "1:914919173575:web:628ceaf8e690c55c307de2",
+      measurementId: "G-HNKH3DCL4L"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    window.currentUser = null;
+
+    // Google Sign In
+    window.loginGoogle = () => {
+      signInWithPopup(auth, provider).catch(error => console.error(error));
+    };
+
+    // Sign Out
+    window.logoutGoogle = () => {
+      signOut(auth);
+    };
+
+    // Listen to Auth State
+    onAuthStateChanged(auth, (user) => {
+      const authDiv = document.getElementById('authContainer');
+      if (user) {
+        window.currentUser = user;
+        document.getElementById('custName').value = user.displayName || '';
+        authDiv.innerHTML = `
+          <div class="user-profile">
+            <img src="${user.photoURL}" alt="Profile">
+            <span>${user.displayName.split(' ')[0]}</span>
+            <button onclick="logoutGoogle()" style="margin-left:8px; background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Exit</button>
+          </div>
+        `;
+      } else {
+        window.currentUser = null;
+        authDiv.innerHTML = `<button class="btn-auth" onclick="loginGoogle()">Sign in with Google</button>`;
+      }
+    });
+  </script>
 </head>
 <body>
 
   <header>
     <h1>Nexus Choice</h1>
-    <p>උසස් තත්ත්වයේ නිෂ්පාදන අන්තර්ජාලය හරහා විශ්වාසනීයව ලබාගන්න</p>
+    <div class="user-auth" id="authContainer">
+      <button class="btn-auth" onclick="loginGoogle()">Sign in with Google</button>
+    </div>
   </header>
 
   <div class="container">
     <div class="section-title">අපගේ නිෂ්පාදන</div>
     
     <div class="product-grid">
-      
-      <!-- Product 1 -->
+      <!-- Product Card 1 -->
       <div class="card">
         <img src="https://i.ibb.co/v6LkbPJZ/T800.png" alt="T800 Smart Watch">
         <div class="card-details">
           <h3>T800 Ultra Smart Watch</h3>
           <p class="price">Rs. 2,500</p>
-          <button class="btn-buy" onclick="orderViaWhatsApp('T800 Ultra Smart Watch', 'Rs. 2,500')">
-            WhatsApp හරහා ඇණවුම් කරන්න
-          </button>
+          <button class="btn-buy" onclick="openCheckout('T800 Ultra Smart Watch', 'Rs. 2,500')">ඇණවුම් කරන්න</button>
         </div>
       </div>
+    </div>
+  </div>
 
+  <!-- Checkout Popup Form -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-content">
+      <h2>ඇණවුම් තොරතුරු ඇතුළත් කරන්න</h2>
+      
+      <div class="form-group">
+        <label>ඔබගේ නම</label>
+        <input type="text" id="custName" placeholder="කුමාර පෙරේරා">
+      </div>
+      <div class="form-group">
+        <label>දුරකථන අංකය</label>
+        <input type="tel" id="custPhone" placeholder="0771234567">
+      </div>
+      <div class="form-group">
+        <label>ලිපිනය සහ නගරය</label>
+        <textarea id="custAddress" rows="3" placeholder="නො: 12, මහ වීදිය, මහනුවර"></textarea>
+      </div>
+
+      <div class="checkout-btns">
+        <button class="btn-wa" onclick="sendOrder('wa')">🟢 WhatsApp හරහා යවන්න</button>
+        <button class="btn-fb" onclick="sendOrder('fb')">🔵 Facebook Messenger හරහා යවන්න</button>
+        <button class="btn-close" onclick="closeCheckout()">වහන්න</button>
+      </div>
     </div>
   </div>
 
   <footer>
-    <p>&copy; 2026 Nexus Choice. All rights reserved.</p>
+    <p>&copy; 2026 Nexus Choice. All rights reserved. | Contact: 076 8083 806</p>
   </footer>
 
   <script>
-    function orderViaWhatsApp(productName, price) {
-      const myNumber = "94768083806"; 
-      const message = `හලෝ Nexus Choice, මට මෙන්න මේ භාණ්ඩය මිලදී ගැනීමට අවශ්‍යයි:%0A%0A📦 *Product:* ${productName}%0A💰 *Price:* ${price}`;
-      window.open(`https://wa.me/${myNumber}?text=${message}`, '_blank');
+    let activeProduct = { name: '', price: '' };
+
+    function openCheckout(name, price) {
+      activeProduct = { name, price };
+      document.getElementById('checkoutModal').style.display = 'flex';
+    }
+
+    function closeCheckout() {
+      document.getElementById('checkoutModal').style.display = 'none';
+    }
+
+    function sendOrder(platform) {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+
+      if (!name || !phone || !address) {
+        alert('කරුණාකර සියලුම විස්තර ඇතුළත් කරන්න!');
+        return;
+      }
+
+      const msg = `🛒 *NEW ORDER - NEXUS CHOICE*%0A----------------------------------%0A📦 *Item:* ${activeProduct.name}%0A💰 *Price:* ${activeProduct.price}%0A%0A👤 *Customer Name:* ${name}%0A📞 *Phone:* ${phone}%0A🏠 *Address:* ${address}%0A----------------------------------`;
+
+      if (platform === 'wa') {
+        const myWhatsApp = "94768083806";
+        window.open(`https://wa.me/${myWhatsApp}?text=${msg}`, '_blank');
+      } else if (platform === 'fb') {
+        // Facebook Messenger link (Replace with your actual FB Page ID / link)
+        window.open(`https://m.me/YOUR_FB_PAGE_ID`, '_blank');
+      }
+      closeCheckout();
     }
   </script>
 
