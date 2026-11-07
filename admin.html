@@ -112,24 +112,17 @@
   </div>
 
   <script>
-    const defaultProducts = [
-      { id: 1, title: "T800 Ultra Smart Watch", status: "in", originalPrice: 3000, discountPrice: 2500, images: ["https://i.ibb.co/v6LkbPJZ/T800.png"] },
-      { id: 2, title: "G shock Dual Time Casio", status: "in", originalPrice: 4200, discountPrice: 3650, images: ["https://i.ibb.co/Qv16YpXn/g-shock.png"] },
-      { id: 3, title: "TISSOT PRX Automatic Watch", status: "in", originalPrice: 4500, discountPrice: 3650, images: ["https://i.ibb.co/C5XGRDCy/tissot.png"] },
-      { id: 4, title: "Beike women's quartz watches", status: "out", originalPrice: 2500, discountPrice: 1990, images: ["https://i.ibb.co/WpzX3wB6/beike-women.png"] }
-    ];
-
-    let products = defaultProducts;
+    let products = [];
     try {
       const saved = localStorage.getItem('nexus_products');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           products = parsed;
         }
       }
     } catch (e) {
-      products = defaultProducts;
+      products = [];
     }
 
     function checkAdminLogin() {
@@ -147,6 +140,11 @@
       const tbody = document.getElementById('adminProductTable');
       if(!tbody) return;
       tbody.innerHTML = '';
+
+      if (products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6b7280;">තවම නිෂ්පාදන එකතු කර නැත.</td></tr>`;
+        return;
+      }
 
       products.forEach(p => {
         let mainImg = (p.images && p.images.length > 0) ? p.images[0] : '';
