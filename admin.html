@@ -42,7 +42,7 @@
   <!-- Admin Dashboard Panel -->
   <div id="adminDashboard">
     <div class="admin-header">
-      <h2 id="formHeadingTitle">Nexus Choice - Admin Dashboard</h2>
+      <h2>Nexus Choice - Admin Dashboard</h2>
       <a href="index.html" class="btn-exit" target="_blank">🏠 View Store</a>
     </div>
 
@@ -112,18 +112,29 @@
   </div>
 
   <script>
-    let defaultProducts = [
+    const defaultProducts = [
       { id: 1, title: "T800 Ultra Smart Watch", status: "in", originalPrice: 3000, discountPrice: 2500, images: ["https://i.ibb.co/v6LkbPJZ/T800.png"] },
       { id: 2, title: "G shock Dual Time Casio", status: "in", originalPrice: 4200, discountPrice: 3650, images: ["https://i.ibb.co/Qv16YpXn/g-shock.png"] },
       { id: 3, title: "TISSOT PRX Automatic Watch", status: "in", originalPrice: 4500, discountPrice: 3650, images: ["https://i.ibb.co/C5XGRDCy/tissot.png"] },
       { id: 4, title: "Beike women's quartz watches", status: "out", originalPrice: 2500, discountPrice: 1990, images: ["https://i.ibb.co/WpzX3wB6/beike-women.png"] }
     ];
 
-    let products = JSON.parse(localStorage.getItem('nexus_products')) || defaultProducts;
+    let products = defaultProducts;
+    try {
+      const saved = localStorage.getItem('nexus_products');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          products = parsed;
+        }
+      }
+    } catch (e) {
+      products = defaultProducts;
+    }
 
     function checkAdminLogin() {
       const pass = document.getElementById('adminPassInput').value;
-      if (pass === "nexus123") { // Password එක
+      if (pass === "nexus123") {
         document.getElementById('loginBox').style.display = 'none';
         document.getElementById('adminDashboard').style.display = 'block';
         renderAdminTable();
@@ -134,6 +145,7 @@
 
     function renderAdminTable() {
       const tbody = document.getElementById('adminProductTable');
+      if(!tbody) return;
       tbody.innerHTML = '';
 
       products.forEach(p => {
@@ -141,8 +153,8 @@
         tbody.innerHTML += `
           <tr>
             <td><img src="${mainImg}" width="40" height="40" style="object-fit:cover; border-radius:4px;"></td>
-            <td><strong>${p.title}</strong></td>
-            <td>Rs. ${p.discountPrice} ${p.originalPrice ? `<small><del>(Rs. ${p.originalPrice})</del></small>`:''}</td>
+            <td><strong>${p.title || ''}</strong></td>
+            <td>Rs. ${p.discountPrice || 0} ${p.originalPrice ? `<small><del>(Rs. ${p.originalPrice})</del></small>`:''}</td>
             <td>
               <button class="btn-action btn-toggle" onclick="toggleStock(${p.id})">
                 ${p.status === 'in' ? '🟢 In Stock' : '🔴 Out of Stock'}
@@ -174,12 +186,11 @@
       if(!p) return;
 
       document.getElementById('editProductId').value = p.id;
-      document.getElementById('pTitle').value = p.title;
-      document.getElementById('pStatus').value = p.status;
+      document.getElementById('pTitle').value = p.title || '';
+      document.getElementById('pStatus').value = p.status || 'in';
       document.getElementById('pOriginalPrice').value = p.originalPrice || '';
-      document.getElementById('pDiscountPrice').value = p.discountPrice;
+      document.getElementById('pDiscountPrice').value = p.discountPrice || '';
 
-      // Fill images
       for(let i=1; i<=5; i++) {
         const input = document.getElementById(`pImg${i}`);
         if(input) input.value = (p.images && p.images[i-1]) ? p.images[i-1] : '';
@@ -214,16 +225,14 @@
       const discountPrice = Number(document.getElementById('pDiscountPrice').value);
 
       if (editId) {
-        // Update existing product
         products = products.map(p => {
-          if (p.id == editId) {
+          if (String(p.id) === String(editId)) {
             return { ...p, title, status, originalPrice, discountPrice, images: imgs };
           }
           return p;
         });
         alert("Product එක සාර්ථකව Update විය!");
       } else {
-        // Add new product
         const newP = {
           id: Date.now(),
           title,
