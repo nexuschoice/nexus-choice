@@ -3,13 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexus Choice | Online Store</title>
+  <title>Nexus Choice | Online Store Sri Lanka</title>
+  
+  <!-- SEO Meta Tags for Nexus Choice -->
+  <meta name="description" content="Nexus Choice - Sri Lanka's trusted online store for trending items, tools, cloths and lifestyle gadgets. Best prices in Sri Lanka. Fast delivery available!">
+  <meta name="keywords" content="Nexus Choice, Sasi Mart, Nexus Blooms, Online Shopping Sri Lanka, Smart Watches Sri Lanka, Bluetooth Headsets, Power Tools, Gadgets Store Online Shop, Kandy Shopping, Quality Products, Best Price Online Sri Lanka">
+  <meta name="author" content="Little Sybot, Nexus Choice, Sasindu Nisal">
+  
+  <!-- Social Media Preview Tags -->
+  <meta property="og:title" content="Nexus Choice | Online Store Sri Lanka">
+  <meta property="og:description" content="Explore trending smart watches, audio gear, and tools at unbeatable prices in Sri Lanka. Order online easily!">
+  <meta property="og:image" content="https://i.ibb.co/v6LkbPJZ/T800.png">
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
     body { background-color: #f3f4f6; color: #1f2937; }
     
-    header { background: #111827; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    header { background: #111827; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); flex-wrap: wrap; gap: 15px; }
     header h1 { color: #f59e0b; font-size: 28px; font-weight: 800; }
+    
+    .search-bar { flex: 1; max-width: 400px; padding: 10px 15px; border-radius: 8px; border: none; font-size: 15px; outline: none; }
     
     .user-auth { display: flex; align-items: center; gap: 10px; }
     .btn-auth { background: #4285F4; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; }
@@ -22,7 +35,8 @@
     
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
     
-    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb; }
+    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb; transition: transform 0.2s; }
+    .card:hover { transform: translateY(-3px); }
     .card img { width: 100%; height: 230px; object-fit: cover; background-color: #f9fafb; }
     
     .card-details { padding: 18px; }
@@ -67,24 +81,20 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    window.currentUser = null;
-
-    // Google Sign In
     window.loginGoogle = () => {
-      signInWithPopup(auth, provider).catch(error => console.error(error));
+      signInWithPopup(auth, provider).catch(error => console.error("Auth Error: ", error));
     };
 
-    // Sign Out
     window.logoutGoogle = () => {
       signOut(auth);
     };
 
-    // Listen to Auth State
     onAuthStateChanged(auth, (user) => {
       const authDiv = document.getElementById('authContainer');
       if (user) {
         window.currentUser = user;
-        document.getElementById('custName').value = user.displayName || '';
+        const nameInput = document.getElementById('custName');
+        if(nameInput) nameInput.value = user.displayName || '';
         authDiv.innerHTML = `
           <div class="user-profile">
             <img src="${user.photoURL}" alt="Profile">
@@ -103,22 +113,113 @@
 
   <header>
     <h1>Nexus Choice</h1>
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 බඩු වර්ග සර්ච් කරන්න..." onkeyup="searchProducts()">
     <div class="user-auth" id="authContainer">
       <button class="btn-auth" onclick="loginGoogle()">Sign in with Google</button>
     </div>
   </header>
 
   <div class="container">
-    <div class="section-title">අපගේ නිෂ්පාදන</div>
+    <div class="section-title">අපගේ නිෂ්පාදන (Products)</div>
     
-    <div class="product-grid">
-      <!-- Product Card 1 -->
-      <div class="card">
+    <div class="product-grid" id="productGrid">
+      <!-- Product 1 -->
+      <div class="card" data-name="t800 ultra smart watch">
         <img src="https://i.ibb.co/v6LkbPJZ/T800.png" alt="T800 Smart Watch">
         <div class="card-details">
           <h3>T800 Ultra Smart Watch</h3>
           <p class="price">Rs. 2,500</p>
           <button class="btn-buy" onclick="openCheckout('T800 Ultra Smart Watch', 'Rs. 2,500')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 2 -->
+      <div class="card" data-name="g shock dual time casio">
+        <img src="https://i.ibb.co/Qv16YpXn/g-shock.png" alt="G Shock Watch">
+        <div class="card-details">
+          <h3>G shock Dual Time Casio</h3>
+          <p class="price">Rs. 3,650</p>
+          <button class="btn-buy" onclick="openCheckout('G shock Dual Time Casio', 'Rs. 3,650')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 3 -->
+      <div class="card" data-name="tissot prx automatic watch">
+        <img src="https://i.ibb.co/C5XGRDCy/tissot.png" alt="Tissot PRX Watch">
+        <div class="card-details">
+          <h3>TISSOT PRX Automatic Watch</h3>
+          <p class="price">Rs. 3,650</p>
+          <button class="btn-buy" onclick="openCheckout('TISSOT PRX Automatic Watch', 'Rs. 3,650')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 4 -->
+      <div class="card" data-name="beike womens quartz watches">
+        <img src="https://i.ibb.co/WpzX3wB6/beike-women.png" alt="Beike Watch">
+        <div class="card-details">
+          <h3>Beike women's quartz watches</h3>
+          <p class="price">Rs. 1,990</p>
+          <button class="btn-buy" onclick="openCheckout('Beike womens quartz watches', 'Rs. 1,990')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 5 -->
+      <div class="card" data-name="casio digital silver chain watch">
+        <img src="https://i.ibb.co/TM0xkg7t/casio-clasic.png" alt="Casio Chain Watch">
+        <div class="card-details">
+          <h3>Casio Digital Silver Chain Watch</h3>
+          <p class="price">Rs. 2,000</p>
+          <button class="btn-buy" onclick="openCheckout('Casio Digital Silver Chain Watch', 'Rs. 2,000')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 6 -->
+      <div class="card" data-name="cordless screw driver 4.2v">
+        <img src="https://i.ibb.co/RGpftzxv/6.png" alt="Screw Driver">
+        <div class="card-details">
+          <h3>48 Pcs Cordless Screw Driver 4.2V</h3>
+          <p class="price">Rs. 3,000</p>
+          <button class="btn-buy" onclick="openCheckout('48 Pcs Cordless Screw Driver 4.2V', 'Rs. 3,000')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 7 -->
+      <div class="card" data-name="high pressure water gun">
+        <img src="https://i.ibb.co/cStsrWJZ/7.png" alt="Water Gun">
+        <div class="card-details">
+          <h3>High Pressure Water Gun</h3>
+          <p class="price">Rs. 6,500</p>
+          <button class="btn-buy" onclick="openCheckout('High Pressure Water Gun', 'Rs. 6,500')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 8 -->
+      <div class="card" data-name="hydrolic jack ton">
+        <img src="https://i.ibb.co/JjgXgVzH/8.png" alt="Hydrolic Jack">
+        <div class="card-details">
+          <h3>3 Ton Hydrolic Jack</h3>
+          <p class="price">Rs. 4,000</p>
+          <button class="btn-buy" onclick="openCheckout('3 Ton Hydrolic Jack', 'Rs. 4,000')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 9 -->
+      <div class="card" data-name="portable mini foot air pump">
+        <img src="https://i.ibb.co/k2F0s1nF/9.png" alt="Air Pump">
+        <div class="card-details">
+          <h3>Portable Mini Foot Air Pump</h3>
+          <p class="price">Rs. 3,000</p>
+          <button class="btn-buy" onclick="openCheckout('Portable Mini Foot Air Pump', 'Rs. 3,000')">ඇණවුම් කරන්න</button>
+        </div>
+      </div>
+
+      <!-- Product 10 -->
+      <div class="card" data-name="combination socket wrench set">
+        <img src="https://i.ibb.co/5WK2jdbr/10.png" alt="Wrench Set">
+        <div class="card-details">
+          <h3>40 Pcs Socket Wrench Set</h3>
+          <p class="price">Rs. 2,690</p>
+          <button class="btn-buy" onclick="openCheckout('40 Pcs Socket Wrench Set', 'Rs. 2,690')">ඇණවුම් කරන්න</button>
         </div>
       </div>
     </div>
@@ -166,6 +267,21 @@
       document.getElementById('checkoutModal').style.display = 'none';
     }
 
+    // Live Search Function
+    function searchProducts() {
+      let query = document.getElementById('searchInput').value.toLowerCase();
+      let cards = document.querySelectorAll('.product-grid .card');
+      
+      cards.forEach(card => {
+        let name = card.getAttribute('data-name');
+        if (name.includes(query)) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
     function sendOrder(platform) {
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
@@ -182,8 +298,8 @@
         const myWhatsApp = "94768083806";
         window.open(`https://wa.me/${myWhatsApp}?text=${msg}`, '_blank');
       } else if (platform === 'fb') {
-        // Facebook Messenger link (Replace with your actual FB Page ID / link)
-        window.open(`https://m.me/YOUR_FB_PAGE_ID`, '_blank');
+        const fbPageID = "1220572857797659";
+        window.open(`https://m.me/${fbPageID}?text=${encodeURIComponent(msg)}`, '_blank');
       }
       closeCheckout();
     }
