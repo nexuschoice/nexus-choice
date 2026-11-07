@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nexus Choice | Online Store Sri Lanka</title>
   
-  <!-- SEO Meta Tags -->
   <meta name="description" content="Nexus Choice - Sri Lanka's trusted online store for trending items, tools, cloths and lifestyle gadgets. Best prices in Sri Lanka. Fast delivery available!">
   <meta name="keywords" content="Nexus Choice, Sasi Mart, Nexus Blooms, Online Shopping Sri Lanka, Smart Watches Sri Lanka, Bluetooth Headsets, Power Tools, Gadgets Store Online Shop">
   <meta name="author" content="Little Sybot, Nexus Choice, Sasindu Nisal">
@@ -55,6 +54,8 @@
     .btn-buy { width: 100%; background: #f59e0b; color: white; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
     .btn-buy:hover { background: #d97706; }
     .btn-buy:disabled { background: #9ca3af; cursor: not-allowed; }
+
+    .no-products { grid-column: 1 / -1; text-align: center; padding: 40px; color: #6b7280; font-size: 16px; background: white; border-radius: 12px; }
 
     /* Modal / Pop-up Form */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
@@ -152,25 +153,18 @@
   </footer>
 
   <script>
-    const defaultProducts = [
-      { id: 1, title: "T800 Ultra Smart Watch", status: "in", originalPrice: 3000, discountPrice: 2500, images: ["https://i.ibb.co/v6LkbPJZ/T800.png"] },
-      { id: 2, title: "G shock Dual Time Casio", status: "in", originalPrice: 4200, discountPrice: 3650, images: ["https://i.ibb.co/Qv16YpXn/g-shock.png"] },
-      { id: 3, title: "TISSOT PRX Automatic Watch", status: "in", originalPrice: 4500, discountPrice: 3650, images: ["https://i.ibb.co/C5XGRDCy/tissot.png"] },
-      { id: 4, title: "Beike women's quartz watches", status: "out", originalPrice: 2500, discountPrice: 1990, images: ["https://i.ibb.co/WpzX3wB6/beike-women.png"] }
-    ];
-
-    let products = defaultProducts;
+    // Clean loading: Empty array by default so admin adds items fresh
+    let products = [];
     try {
       const savedData = localStorage.getItem('nexus_products');
       if (savedData) {
         const parsed = JSON.parse(savedData);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           products = parsed;
         }
       }
     } catch (err) {
       console.error("Error loading products:", err);
-      products = defaultProducts;
     }
 
     let activeOrderProduct = null;
@@ -179,6 +173,11 @@
       const grid = document.getElementById('productGrid');
       if (!grid) return;
       grid.innerHTML = '';
+
+      if (products.length === 0) {
+        grid.innerHTML = `<div class="no-products">📦 තවම නිෂ්පාදන කිසිවක් එකතු කර නොමැත. කරුණාකර Admin Panel එක හරහා නිෂ්පාදන එකතු කරන්න.</div>`;
+        return;
+      }
 
       products.forEach((p) => {
         const isOutOfStock = p.status === 'out';
