@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nexus Choice | Online Store Sri Lanka</title>
   
-  <!-- SEO Meta Tags for Nexus Choice -->
+  <!-- SEO Meta Tags -->
   <meta name="description" content="Nexus Choice - Sri Lanka's trusted online store for trending items, tools, cloths and lifestyle gadgets. Best prices in Sri Lanka. Fast delivery available!">
-  <meta name="keywords" content="Nexus Choice, Sasi Mart, Nexus Blooms, Online Shopping Sri Lanka, Smart Watches Sri Lanka, Bluetooth Headsets, Power Tools, Gadgets Store Online Shop, Kandy Shopping, Quality Products, Best Price Online Sri Lanka">
+  <meta name="keywords" content="Nexus Choice, Sasi Mart, Nexus Blooms, Online Shopping Sri Lanka, Smart Watches Sri Lanka, Bluetooth Headsets, Power Tools, Gadgets Store Online Shop">
   <meta name="author" content="Little Sybot, Nexus Choice, Sasindu Nisal">
-  
-  <!-- Social Media Preview Tags -->
   <meta property="og:title" content="Nexus Choice | Online Store Sri Lanka">
   <meta property="og:description" content="Explore trending smart watches, audio gear, and tools at unbeatable prices in Sri Lanka. Order online easily!">
   <meta property="og:image" content="https://i.ibb.co/v6LkbPJZ/T800.png">
@@ -19,50 +17,60 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
     body { background-color: #f3f4f6; color: #1f2937; }
     
-    header { background: #111827; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); flex-wrap: wrap; gap: 15px; }
-    header h1 { color: #f59e0b; font-size: 28px; font-weight: 800; }
+    header { background: #111827; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .brand h1 { color: #f59e0b; font-size: 26px; font-weight: 800; cursor: pointer; }
     
-    .search-bar { flex: 1; max-width: 400px; padding: 10px 15px; border-radius: 8px; border: none; font-size: 15px; outline: none; }
+    .search-bar { flex: 1; max-width: 350px; padding: 8px 15px; border-radius: 6px; border: none; font-size: 14px; outline: none; }
     
     .user-auth { display: flex; align-items: center; gap: 10px; }
-    .btn-auth { background: #4285F4; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-auth { background: #4285F4; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
     .btn-auth:hover { background: #3367d6; }
-    .user-profile { display: flex; align-items: center; gap: 8px; color: white; }
-    .user-profile img { width: 32px; height: 32px; border-radius: 50%; }
+    .user-profile { display: flex; align-items: center; gap: 8px; color: white; font-size: 14px; }
+    .user-profile img { width: 30px; height: 30px; border-radius: 50%; }
     
     .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-    .section-title { font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #111827; border-bottom: 3px solid #f59e0b; display: inline-block; padding-bottom: 5px; }
+    .section-title { font-size: 22px; font-weight: bold; margin-bottom: 20px; border-bottom: 3px solid #f59e0b; display: inline-block; padding-bottom: 5px; }
     
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; }
     
-    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb; transition: transform 0.2s; }
-    .card:hover { transform: translateY(-3px); }
-    .card img { width: 100%; height: 230px; object-fit: cover; background-color: #f9fafb; }
+    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+    .badge-stock { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; color: white; z-index: 5; }
+    .in-stock { background: #059669; }
+    .out-of-stock { background: #dc2626; }
     
-    .card-details { padding: 18px; }
-    .card-details h3 { font-size: 18px; color: #111827; margin-bottom: 8px; }
-    .price { font-size: 20px; color: #059669; font-weight: bold; margin-bottom: 15px; }
+    .card-img-container { width: 100%; height: 220px; background: #f9fafb; position: relative; overflow: hidden; }
+    .main-card-img { width: 100%; height: 100%; object-fit: cover; }
     
-    .btn-buy { width: 100%; background: #f59e0b; color: white; padding: 12px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: background 0.2s; }
+    .thumb-bar { display: flex; gap: 4px; padding: 6px; background: #f3f4f6; overflow-x: auto; }
+    .thumb-img { width: 38px; height: 38px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #d1d5db; opacity: 0.7; }
+    .thumb-img:hover, .thumb-img.active { opacity: 1; border-color: #f59e0b; }
+    
+    .card-details { padding: 15px; flex-grow: 1; }
+    .card-details h3 { font-size: 17px; color: #111827; margin-bottom: 6px; }
+    
+    .price-box { margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; }
+    .price-discount { font-size: 19px; color: #059669; font-weight: bold; }
+    .price-original { font-size: 14px; color: #9ca3af; text-decoration: line-through; }
+    
+    .btn-buy { width: 100%; background: #f59e0b; color: white; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
     .btn-buy:hover { background: #d97706; }
-    
+    .btn-buy:disabled { background: #9ca3af; cursor: not-allowed; }
+
     /* Modal / Pop-up Form */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: white; padding: 25px; border-radius: 12px; max-width: 450px; width: 90%; }
-    .modal-content h2 { margin-bottom: 15px; color: #111827; font-size: 20px; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; }
-    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+    .modal-content h2 { margin-bottom: 15px; color: #111827; font-size: 18px; }
+    .modal-content input, .modal-content textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
     
-    .checkout-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-    .btn-wa { background: #25D366; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
-    .btn-fb { background: #0084FF; color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
-    .btn-close { background: #6b7280; color: white; padding: 8px; border: none; border-radius: 6px; margin-top: 5px; cursor: pointer; width: 100%; }
+    .checkout-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .btn-wa { background: #25D366; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .btn-fb { background: #0084FF; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .btn-close { background: #6b7280; color: white; padding: 8px; border: none; border-radius: 6px; cursor: pointer; margin-top: 5px; width: 100%; }
 
-    footer { text-align: center; padding: 25px; color: #6b7280; font-size: 14px; margin-top: 50px; background: #fff; border-top: 1px solid #e5e7eb; }
+    footer { text-align: center; padding: 20px; color: #6b7280; font-size: 13px; margin-top: 40px; background: white; border-top: 1px solid #e5e7eb; }
   </style>
 
-  <!-- Firebase Modular Scripts -->
+  <!-- Firebase Auth Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -81,29 +89,22 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    window.loginGoogle = () => {
-      signInWithPopup(auth, provider).catch(error => console.error("Auth Error: ", error));
-    };
-
-    window.logoutGoogle = () => {
-      signOut(auth);
-    };
+    window.loginGoogle = () => { signInWithPopup(auth, provider).catch(error => console.error(error)); };
+    window.logoutGoogle = () => { signOut(auth); };
 
     onAuthStateChanged(auth, (user) => {
       const authDiv = document.getElementById('authContainer');
       if (user) {
-        window.currentUser = user;
         const nameInput = document.getElementById('custName');
         if(nameInput) nameInput.value = user.displayName || '';
         authDiv.innerHTML = `
           <div class="user-profile">
             <img src="${user.photoURL}" alt="Profile">
             <span>${user.displayName.split(' ')[0]}</span>
-            <button onclick="logoutGoogle()" style="margin-left:8px; background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Exit</button>
+            <button onclick="logoutGoogle()" style="background:#ef4444; color:white; border:none; padding:3px 7px; border-radius:4px; cursor:pointer; font-size:11px;">Exit</button>
           </div>
         `;
       } else {
-        window.currentUser = null;
         authDiv.innerHTML = `<button class="btn-auth" onclick="loginGoogle()">Sign in with Google</button>`;
       }
     });
@@ -112,8 +113,10 @@
 <body>
 
   <header>
-    <h1>Nexus Choice</h1>
-    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 බඩු වර්ග සර්ච් කරන්න..." onkeyup="searchProducts()">
+    <div class="brand">
+      <h1>Nexus Choice</h1>
+    </div>
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 නිෂ්පාදන සර්ච් කරන්න..." onkeyup="searchProducts()">
     <div class="user-auth" id="authContainer">
       <button class="btn-auth" onclick="loginGoogle()">Sign in with Google</button>
     </div>
@@ -121,107 +124,8 @@
 
   <div class="container">
     <div class="section-title">අපගේ නිෂ්පාදන (Products)</div>
-    
     <div class="product-grid" id="productGrid">
-      <!-- Product 1 -->
-      <div class="card" data-name="t800 ultra smart watch">
-        <img src="https://i.ibb.co/v6LkbPJZ/T800.png" alt="T800 Smart Watch">
-        <div class="card-details">
-          <h3>T800 Ultra Smart Watch</h3>
-          <p class="price">Rs. 2,500</p>
-          <button class="btn-buy" onclick="openCheckout('T800 Ultra Smart Watch', 'Rs. 2,500')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 2 -->
-      <div class="card" data-name="g shock dual time casio">
-        <img src="https://i.ibb.co/Qv16YpXn/g-shock.png" alt="G Shock Watch">
-        <div class="card-details">
-          <h3>G shock Dual Time Casio</h3>
-          <p class="price">Rs. 3,650</p>
-          <button class="btn-buy" onclick="openCheckout('G shock Dual Time Casio', 'Rs. 3,650')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 3 -->
-      <div class="card" data-name="tissot prx automatic watch">
-        <img src="https://i.ibb.co/C5XGRDCy/tissot.png" alt="Tissot PRX Watch">
-        <div class="card-details">
-          <h3>TISSOT PRX Automatic Watch</h3>
-          <p class="price">Rs. 3,650</p>
-          <button class="btn-buy" onclick="openCheckout('TISSOT PRX Automatic Watch', 'Rs. 3,650')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 4 -->
-      <div class="card" data-name="beike womens quartz watches">
-        <img src="https://i.ibb.co/WpzX3wB6/beike-women.png" alt="Beike Watch">
-        <div class="card-details">
-          <h3>Beike women's quartz watches</h3>
-          <p class="price">Rs. 1,990</p>
-          <button class="btn-buy" onclick="openCheckout('Beike womens quartz watches', 'Rs. 1,990')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 5 -->
-      <div class="card" data-name="casio digital silver chain watch">
-        <img src="https://i.ibb.co/TM0xkg7t/casio-clasic.png" alt="Casio Chain Watch">
-        <div class="card-details">
-          <h3>Casio Digital Silver Chain Watch</h3>
-          <p class="price">Rs. 2,000</p>
-          <button class="btn-buy" onclick="openCheckout('Casio Digital Silver Chain Watch', 'Rs. 2,000')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 6 -->
-      <div class="card" data-name="cordless screw driver 4.2v">
-        <img src="https://i.ibb.co/RGpftzxv/6.png" alt="Screw Driver">
-        <div class="card-details">
-          <h3>48 Pcs Cordless Screw Driver 4.2V</h3>
-          <p class="price">Rs. 3,000</p>
-          <button class="btn-buy" onclick="openCheckout('48 Pcs Cordless Screw Driver 4.2V', 'Rs. 3,000')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 7 -->
-      <div class="card" data-name="high pressure water gun">
-        <img src="https://i.ibb.co/cStsrWJZ/7.png" alt="Water Gun">
-        <div class="card-details">
-          <h3>High Pressure Water Gun</h3>
-          <p class="price">Rs. 6,500</p>
-          <button class="btn-buy" onclick="openCheckout('High Pressure Water Gun', 'Rs. 6,500')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 8 -->
-      <div class="card" data-name="hydrolic jack ton">
-        <img src="https://i.ibb.co/JjgXgVzH/8.png" alt="Hydrolic Jack">
-        <div class="card-details">
-          <h3>3 Ton Hydrolic Jack</h3>
-          <p class="price">Rs. 4,000</p>
-          <button class="btn-buy" onclick="openCheckout('3 Ton Hydrolic Jack', 'Rs. 4,000')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 9 -->
-      <div class="card" data-name="portable mini foot air pump">
-        <img src="https://i.ibb.co/k2F0s1nF/9.png" alt="Air Pump">
-        <div class="card-details">
-          <h3>Portable Mini Foot Air Pump</h3>
-          <p class="price">Rs. 3,000</p>
-          <button class="btn-buy" onclick="openCheckout('Portable Mini Foot Air Pump', 'Rs. 3,000')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
-
-      <!-- Product 10 -->
-      <div class="card" data-name="combination socket wrench set">
-        <img src="https://i.ibb.co/5WK2jdbr/10.png" alt="Wrench Set">
-        <div class="card-details">
-          <h3>40 Pcs Socket Wrench Set</h3>
-          <p class="price">Rs. 2,690</p>
-          <button class="btn-buy" onclick="openCheckout('40 Pcs Socket Wrench Set', 'Rs. 2,690')">ඇණවුම් කරන්න</button>
-        </div>
-      </div>
+      <!-- Products Loaded Dynamically -->
     </div>
   </div>
 
@@ -229,19 +133,9 @@
   <div class="modal-overlay" id="checkoutModal">
     <div class="modal-content">
       <h2>ඇණවුම් තොරතුරු ඇතුළත් කරන්න</h2>
-      
-      <div class="form-group">
-        <label>ඔබගේ නම</label>
-        <input type="text" id="custName" placeholder="කුමාර පෙරේරා">
-      </div>
-      <div class="form-group">
-        <label>දුරකථන අංකය</label>
-        <input type="tel" id="custPhone" placeholder="0771234567">
-      </div>
-      <div class="form-group">
-        <label>ලිපිනය සහ නගරය</label>
-        <textarea id="custAddress" rows="3" placeholder="නො: 12, මහ වීදිය, මහනුවර"></textarea>
-      </div>
+      <input type="text" id="custName" placeholder="ඔබගේ නම">
+      <input type="tel" id="custPhone" placeholder="දුරකථන අංකය">
+      <textarea id="custAddress" rows="3" placeholder="ලිපිනය සහ නගරය"></textarea>
 
       <div class="checkout-btns">
         <button class="btn-wa" onclick="sendOrder('wa')">🟢 WhatsApp හරහා යවන්න</button>
@@ -252,22 +146,68 @@
   </div>
 
   <footer>
-    <p>&copy; 2026 Nexus Choice. All rights reserved. | Contact: 076 8083 806</p>
+    <p>&copy; 2026 Nexus Choice. All rights reserved. | Official Store</p>
   </footer>
 
   <script>
-    let activeProduct = { name: '', price: '' };
+    // Load products from localStorage (shared with admin.html)
+    let defaultProducts = [
+      { id: 1, title: "T800 Ultra Smart Watch", status: "in", originalPrice: 3000, discountPrice: 2500, images: ["https://i.ibb.co/v6LkbPJZ/T800.png"] },
+      { id: 2, title: "G shock Dual Time Casio", status: "in", originalPrice: 4200, discountPrice: 3650, images: ["https://i.ibb.co/Qv16YpXn/g-shock.png"] },
+      { id: 3, title: "TISSOT PRX Automatic Watch", status: "in", originalPrice: 4500, discountPrice: 3650, images: ["https://i.ibb.co/C5XGRDCy/tissot.png"] },
+      { id: 4, title: "Beike women's quartz watches", status: "out", originalPrice: 2500, discountPrice: 1990, images: ["https://i.ibb.co/WpzX3wB6/beike-women.png"] }
+    ];
 
-    function openCheckout(name, price) {
-      activeProduct = { name, price };
-      document.getElementById('checkoutModal').style.display = 'flex';
+    let products = JSON.parse(localStorage.getItem('nexus_products')) || defaultProducts;
+    let activeOrderProduct = null;
+
+    function renderStorefront() {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = '';
+
+      products.forEach((p) => {
+        const isOutOfStock = p.status === 'out';
+        const stockBadge = isOutOfStock 
+          ? `<span class="badge-stock out-of-stock">Out of Stock</span>`
+          : `<span class="badge-stock in-stock">In Stock</span>`;
+
+        let thumbBarHTML = '';
+        if (p.images && p.images.length > 1) {
+          thumbBarHTML = `<div class="thumb-bar">` + 
+            p.images.map((img, i) => `<img src="${img}" class="thumb-img ${i===0?'active':''}" onclick="changeMainImg(this, 'main-img-${p.id}')">`).join('') + 
+            `</div>`;
+        }
+
+        const cardHTML = `
+          <div class="card" data-name="${p.title.toLowerCase()}">
+            ${stockBadge}
+            <div class="card-img-container">
+              <img id="main-img-${p.id}" src="${p.images[0]}" class="main-card-img" alt="${p.title}">
+            </div>
+            ${thumbBarHTML}
+            <div class="card-details">
+              <h3>${p.title}</h3>
+              <div class="price-box">
+                <span class="price-discount">Rs. ${p.discountPrice.toLocaleString()}</span>
+                ${p.originalPrice ? `<span class="price-original">Rs. ${p.originalPrice.toLocaleString()}</span>` : ''}
+              </div>
+              <button class="btn-buy" ${isOutOfStock ? 'disabled' : ''} onclick="openCheckout(${p.id})">
+                ${isOutOfStock ? 'ලබාගත නොහැක' : 'ඇණවුම් කරන්න'}
+              </button>
+            </div>
+          </div>
+        `;
+        grid.innerHTML += cardHTML;
+      });
     }
 
-    function closeCheckout() {
-      document.getElementById('checkoutModal').style.display = 'none';
+    function changeMainImg(thumb, mainImgId) {
+      document.getElementById(mainImgId).src = thumb.src;
+      const parent = thumb.parentElement;
+      parent.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
     }
 
-    // Live Search Function
     function searchProducts() {
       let query = document.getElementById('searchInput').value.toLowerCase();
       let cards = document.querySelectorAll('.product-grid .card');
@@ -275,11 +215,20 @@
       cards.forEach(card => {
         let name = card.getAttribute('data-name');
         if (name.includes(query)) {
-          card.style.display = "block";
+          card.style.display = "flex";
         } else {
           card.style.display = "none";
         }
       });
+    }
+
+    function openCheckout(id) {
+      activeOrderProduct = products.find(p => p.id === id);
+      document.getElementById('checkoutModal').style.display = 'flex';
+    }
+
+    function closeCheckout() {
+      document.getElementById('checkoutModal').style.display = 'none';
     }
 
     function sendOrder(platform) {
@@ -292,18 +241,17 @@
         return;
       }
 
-      const msg = `🛒 *NEW ORDER - NEXUS CHOICE*%0A----------------------------------%0A📦 *Item:* ${activeProduct.name}%0A💰 *Price:* ${activeProduct.price}%0A%0A👤 *Customer Name:* ${name}%0A📞 *Phone:* ${phone}%0A🏠 *Address:* ${address}%0A----------------------------------`;
+      const msg = `🛒 *NEW ORDER - NEXUS CHOICE*%0A----------------------------------%0A📦 *Item:* ${activeOrderProduct.title}%0A💰 *Price:* Rs. ${activeOrderProduct.discountPrice}%0A%0A👤 *Customer Name:* ${name}%0A📞 *Phone:* ${phone}%0A🏠 *Address:* ${address}%0A----------------------------------`;
 
       if (platform === 'wa') {
-        const myWhatsApp = "94768083806";
-        window.open(`https://wa.me/${myWhatsApp}?text=${msg}`, '_blank');
+        window.open(`https://wa.me/94768083806?text=${msg}`, '_blank');
       } else if (platform === 'fb') {
-        const fbPageID = "1220572857797659";
-        window.open(`https://m.me/${fbPageID}?text=${encodeURIComponent(msg)}`, '_blank');
+        window.open(`https://m.me/1220572857797659?text=${encodeURIComponent(msg)}`, '_blank');
       }
       closeCheckout();
     }
-  </script>
 
+    renderStorefront();
+  </script>
 </body>
 </html>
