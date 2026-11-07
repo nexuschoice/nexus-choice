@@ -10,275 +10,109 @@
   <meta name="author" content="Little Sybot, Nexus Choice, Sasindu Nisal">
   <meta property="og:title" content="Nexus Choice | Online Store Sri Lanka">
   <meta property="og:description" content="Explore trending smart watches, audio gear, and tools at unbeatable prices in Sri Lanka. Order online easily!">
-  <meta property="og:image" content="https://i.ibb.co/v6LkbPJZ/T800.png">
+  <meta property="og:image" content="https://i.ibb.co/BKj0gmRL/nexus-logo.png">
 
   <style>
+    :root {
+      --bg-color: #070f2b;
+      --card-bg: #1b1a55;
+      --accent-neon: #00f0ff;
+      --accent-blue: #0077b6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --glow: 0 0 15px rgba(0, 240, 255, 0.4);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-    body { background-color: #f3f4f6; color: #1f2937; }
+    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; }
     
-    header { background: #111827; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .brand h1 { color: #f59e0b; font-size: 26px; font-weight: 800; cursor: pointer; }
+    /* Intro Animation Loader */
+    #introLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030617; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease; }
+    .neon-spinner { width: 70px; height: 70px; border: 4px solid rgba(0, 240, 255, 0.1); border-top: 4px solid var(--accent-neon); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: var(--glow); }
+    .loader-title { margin-top: 20px; font-size: 24px; font-weight: 800; color: var(--accent-neon); letter-spacing: 2px; text-shadow: var(--glow); animation: pulse 1.5s infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    /* Header */
+    header { background: #0b132b; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid rgba(0, 240, 255, 0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+    .brand { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .brand img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent-neon); box-shadow: var(--glow); }
+    .brand h1 { color: var(--accent-neon); font-size: 24px; font-weight: 800; text-shadow: var(--glow); }
     
-    .search-bar { flex: 1; max-width: 350px; padding: 8px 15px; border-radius: 6px; border: none; font-size: 14px; outline: none; }
+    .search-bar { flex: 1; max-width: 350px; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--accent-blue); background: #070f2b; color: white; font-size: 14px; outline: none; box-shadow: inset 0 0 8px rgba(0,119,182,0.3); }
+    .search-bar:focus { border-color: var(--accent-neon); box-shadow: var(--glow); }
     
+    .header-actions { display: flex; align-items: center; gap: 15px; }
+    .cart-btn { background: #1e1b4b; border: 1px solid var(--accent-neon); color: var(--accent-neon); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px; box-shadow: var(--glow); transition: 0.2s; }
+    .cart-btn:hover { background: var(--accent-neon); color: #070f2b; }
+
     .user-auth { display: flex; align-items: center; gap: 10px; }
-    .btn-auth { background: #4285F4; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-    .btn-auth:hover { background: #3367d6; }
-    .user-profile { display: flex; align-items: center; gap: 8px; color: white; font-size: 14px; }
-    .user-profile img { width: 30px; height: 30px; border-radius: 50%; }
-    
+    .btn-auth { background: var(--accent-blue); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .btn-auth:hover { background: #00b4d8; }
+    .user-profile { display: flex; align-items: center; gap: 8px; color: white; font-size: 14px; background: #1e293b; padding: 5px 10px; border-radius: 20px; border: 1px solid var(--accent-blue); }
+    .user-profile img { width: 28px; height: 28px; border-radius: 50%; }
+
+    /* Banner Ad Section */
+    .banner-container { max-width: 1200px; margin: 25px auto 0; padding: 0 20px; }
+    .promo-banner { width: 100%; height: 180px; background: linear-gradient(135deg, #1e1b4b, #0f172a); border: 2px dashed var(--accent-neon); border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; box-shadow: var(--glow); position: relative; overflow: hidden; }
+    .promo-banner h2 { color: var(--accent-neon); font-size: 24px; margin-bottom: 8px; text-shadow: var(--glow); }
+    .promo-banner p { color: var(--text-muted); font-size: 14px; }
+
     .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-    .section-title { font-size: 22px; font-weight: bold; margin-bottom: 20px; border-bottom: 3px solid #f59e0b; display: inline-block; padding-bottom: 5px; }
+    .section-title { font-size: 22px; font-weight: bold; margin-bottom: 20px; color: var(--accent-neon); border-bottom: 2px solid var(--accent-neon); display: inline-block; padding-bottom: 5px; text-shadow: var(--glow); }
     
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; }
     
-    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+    .card { background: #0b132b; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 1px solid rgba(0, 240, 255, 0.2); position: relative; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
+    .card:hover { transform: translateY(-5px); border-color: var(--accent-neon); box-shadow: var(--glow); }
     .badge-stock { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; color: white; z-index: 5; }
     .in-stock { background: #059669; }
     .out-of-stock { background: #dc2626; }
     
-    .card-img-container { width: 100%; height: 220px; background: #f9fafb; position: relative; overflow: hidden; }
+    .card-img-container { width: 100%; height: 220px; background: #030617; position: relative; overflow: hidden; }
     .main-card-img { width: 100%; height: 100%; object-fit: cover; }
     
-    .thumb-bar { display: flex; gap: 4px; padding: 6px; background: #f3f4f6; overflow-x: auto; }
-    .thumb-img { width: 38px; height: 38px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #d1d5db; opacity: 0.7; }
-    .thumb-img:hover, .thumb-img.active { opacity: 1; border-color: #f59e0b; }
+    .thumb-bar { display: flex; gap: 4px; padding: 6px; background: #0b132b; overflow-x: auto; }
+    .thumb-img { width: 38px; height: 38px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #334155; opacity: 0.7; }
+    .thumb-img:hover, .thumb-img.active { opacity: 1; border-color: var(--accent-neon); }
     
     .card-details { padding: 15px; flex-grow: 1; }
-    .card-details h3 { font-size: 17px; color: #111827; margin-bottom: 6px; }
+    .card-details h3 { font-size: 17px; color: white; margin-bottom: 6px; }
     
     .price-box { margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; }
-    .price-discount { font-size: 19px; color: #059669; font-weight: bold; }
-    .price-original { font-size: 14px; color: #9ca3af; text-decoration: line-through; }
+    .price-discount { font-size: 19px; color: var(--accent-neon); font-weight: bold; text-shadow: 0 0 8px rgba(0,240,255,0.3); }
+    .price-original { font-size: 14px; color: var(--text-muted); text-decoration: line-through; }
     
-    .btn-buy { width: 100%; background: #f59e0b; color: white; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
-    .btn-buy:hover { background: #d97706; }
-    .btn-buy:disabled { background: #9ca3af; cursor: not-allowed; }
+    .card-actions { display: flex; gap: 8px; }
+    .btn-buy { flex: 1; background: var(--accent-blue); color: white; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+    .btn-buy:hover { background: #00b4d8; box-shadow: var(--glow); }
+    .btn-buy:disabled { background: #334155; cursor: not-allowed; }
 
-    .no-products { grid-column: 1 / -1; text-align: center; padding: 40px; color: #6b7280; font-size: 16px; background: white; border-radius: 12px; }
+    .btn-cart-add { background: #1e1b4b; border: 1px solid var(--accent-neon); color: var(--accent-neon); padding: 10px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-cart-add:hover { background: var(--accent-neon); color: #070f2b; }
 
-    /* Modal / Pop-up Form */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: white; padding: 25px; border-radius: 12px; max-width: 450px; width: 90%; }
-    .modal-content h2 { margin-bottom: 15px; color: #111827; font-size: 18px; }
-    .modal-content input, .modal-content textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+    .no-products { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); font-size: 16px; background: #0b132b; border-radius: 12px; border: 1px solid rgba(0,240,255,0.1); }
+
+    /* Modal / Pop-up Form (Neon Style) */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 6, 23, 0.85); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+    .modal-content { background: #0b132b; border: 2px solid var(--accent-neon); padding: 25px; border-radius: 15px; max-width: 480px; width: 90%; box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); max-height: 90vh; overflow-y: auto; }
+    .modal-content h2 { margin-bottom: 15px; color: var(--accent-neon); font-size: 20px; text-shadow: var(--glow); }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: var(--text-muted); }
+    .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 10px; border: 1px solid var(--accent-blue); background: #070f2b; color: white; border-radius: 6px; font-size: 14px; outline: none; }
+    .modal-content input:focus { border-color: var(--accent-neon); box-shadow: var(--glow); }
     
-    .checkout-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-    .btn-wa { background: #25D366; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .btn-fb { background: #0084FF; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .btn-close { background: #6b7280; color: white; padding: 8px; border: none; border-radius: 6px; cursor: pointer; margin-top: 5px; width: 100%; }
+    .otp-box { display: flex; gap: 8px; }
+    .otp-box input { flex: 1; }
+    .btn-otp { background: var(--accent-blue); color: white; border: none; padding: 0 15px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
 
-    footer { text-align: center; padding: 20px; color: #6b7280; font-size: 13px; margin-top: 40px; background: white; border-top: 1px solid #e5e7eb; }
+    .checkout-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+    .btn-wa { background: #25D366; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; box-shadow: 0 0 10px rgba(37,211,102,0.4); }
+    .btn-close { background: #334155; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+
+    footer { text-align: center; padding: 25px; color: var(--text-muted); font-size: 13px; margin-top: 50px; background: #0b132b; border-top: 1px solid rgba(0,240,255,0.2); }
   </style>
 
-  <!-- Firebase Modular Scripts (Auth & Firestore) -->
+  <!-- Firebase Modular Scripts -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDV4r6Z8YGLS6U33CnptF0IDq_oGyquojY",
-      authDomain: "nexus-choice.firebaseapp.com",
-      projectId: "nexus-choice",
-      storageBucket: "nexus-choice.firebasestorage.app",
-      messagingSenderId: "914919173575",
-      appId: "1:914919173575:web:628ceaf8e690c55c307de2",
-      measurementId: "G-HNKH3DCL4L"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
-
-    window.loginGoogle = () => { signInWithPopup(auth, provider).catch(error => console.error(error)); };
-    window.logoutGoogle = () => { signOut(auth); };
-
-    onAuthStateChanged(auth, (user) => {
-      const authDiv = document.getElementById('authContainer');
-      if (user) {
-        const nameInput = document.getElementById('custName');
-        if(nameInput) nameInput.value = user.displayName || '';
-        authDiv.innerHTML = `
-          <div class="user-profile">
-            <img src="${user.photoURL}" alt="Profile">
-            <span>${user.displayName.split(' ')[0]}</span>
-            <button onclick="logoutGoogle()" style="background:#ef4444; color:white; border:none; padding:3px 7px; border-radius:4px; cursor:pointer; font-size:11px;">Exit</button>
-          </div>
-        `;
-      } else {
-        if(authDiv) {
-          authDiv.innerHTML = `<button class="btn-auth" onclick="loginGoogle()">Sign in with Google</button>`;
-        }
-      }
-    });
-
-    // Fetch Products from Firestore Cloud Database
-    async function loadStoreProducts() {
-      const grid = document.getElementById('productGrid');
-      grid.innerHTML = `<div class="no-products">⏳ නිෂ්පාදන පූරණය වෙමින් පවතී...</div>`;
-      
-      try {
-        const querySnapshot = await getDocs(collection(db, "products"));
-        window.products = [];
-        querySnapshot.forEach((doc) => {
-          window.products.push({ id: doc.id, ...doc.data() });
-        });
-        renderStorefront();
-      } catch (err) {
-        console.error("Error fetching products: ", err);
-        grid.innerHTML = `<div class="no-products">❌ නිෂ්පාදන ලබාගැනීමේ දෝෂයක් සිදු විය.</div>`;
-      }
-    }
-
-    window.onload = loadStoreProducts;
-  </script>
-</head>
-<body>
-
-  <header>
-    <div class="brand">
-      <h1>Nexus Choice</h1>
-    </div>
-    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 නිෂ්පාදන සර්ච් කරන්න..." onkeyup="searchProducts()">
-    <div class="user-auth" id="authContainer">
-      <button class="btn-auth" onclick="loginGoogle()">Sign in with Google</button>
-    </div>
-  </header>
-
-  <div class="container">
-    <div class="section-title">අපගේ නිෂ්පාදන (Products)</div>
-    <div class="product-grid" id="productGrid">
-      <!-- Products Loaded from Cloud -->
-    </div>
-  </div>
-
-  <!-- Checkout Popup Form -->
-  <div class="modal-overlay" id="checkoutModal">
-    <div class="modal-content">
-      <h2>ඇණවුම් තොරතුරු ඇතුළත් කරන්න</h2>
-      <input type="text" id="custName" placeholder="ඔබගේ නම">
-      <input type="tel" id="custPhone" placeholder="දුරකථන අංකය">
-      <textarea id="custAddress" rows="3" placeholder="ලිපිනය සහ නගරය"></textarea>
-
-      <div class="checkout-btns">
-        <button class="btn-wa" onclick="sendOrder('wa')">🟢 WhatsApp හරහා යවන්න</button>
-        <button class="btn-fb" onclick="sendOrder('fb')">🔵 Facebook Messenger හරහා යවන්න</button>
-        <button class="btn-close" onclick="closeCheckout()">වහන්න</button>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <p>&copy; 2026 Nexus Choice. All rights reserved. | Official Store</p>
-  </footer>
-
-  <script>
-    window.products = window.products || [];
-    let activeOrderProduct = null;
-
-    function renderStorefront() {
-      const grid = document.getElementById('productGrid');
-      if (!grid) return;
-      grid.innerHTML = '';
-
-      if (window.products.length === 0) {
-        grid.innerHTML = `<div class="no-products">📦 තවම නිෂ්පාදන කිසිවක් එකතු කර නොමැත. කරුණාකර Admin Panel එක හරහා නිෂ්පාදන එකතු කරන්න.</div>`;
-        return;
-      }
-
-      window.products.forEach((p) => {
-        const isOutOfStock = p.status === 'out';
-        const stockBadge = isOutOfStock 
-          ? `<span class="badge-stock out-of-stock">Out of Stock</span>`
-          : `<span class="badge-stock in-stock">In Stock</span>`;
-
-        let thumbBarHTML = '';
-        if (p.images && p.images.length > 1) {
-          thumbBarHTML = `<div class="thumb-bar">` + 
-            p.images.map((img, i) => `<img src="${img}" class="thumb-img ${i===0?'active':''}" onclick="changeMainImg(this, 'main-img-${p.id}')">`).join('') + 
-            `</div>`;
-        }
-
-        const mainImg = (p.images && p.images[0]) ? p.images[0] : '';
-        const cardHTML = `
-          <div class="card" data-name="${(p.title || '').toLowerCase()}">
-            ${stockBadge}
-            <div class="card-img-container">
-              <img id="main-img-${p.id}" src="${mainImg}" class="main-card-img" alt="${p.title || 'Product'}">
-            </div>
-            ${thumbBarHTML}
-            <div class="card-details">
-              <h3>${p.title || ''}</h3>
-              <div class="price-box">
-                <span class="price-discount">Rs. ${Number(p.discountPrice || 0).toLocaleString()}</span>
-                ${p.originalPrice ? `<span class="price-original">Rs. ${Number(p.originalPrice).toLocaleString()}</span>` : ''}
-              </div>
-              <button class="btn-buy" ${isOutOfStock ? 'disabled' : ''} onclick="openCheckout('${p.id}')">
-                ${isOutOfStock ? 'ලබාගත නොහැක' : 'ඇණවුම් කරන්න'}
-              </button>
-            </div>
-          </div>
-        `;
-        grid.innerHTML += cardHTML;
-      });
-    }
-
-    function changeMainImg(thumb, mainImgId) {
-      const mainImg = document.getElementById(mainImgId);
-      if(mainImg) mainImg.src = thumb.src;
-      const parent = thumb.parentElement;
-      if(parent) {
-        parent.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
-      }
-      thumb.classList.add('active');
-    }
-
-    function searchProducts() {
-      let query = document.getElementById('searchInput').value.toLowerCase();
-      let cards = document.querySelectorAll('.product-grid .card');
-      
-      cards.forEach(card => {
-        let name = card.getAttribute('data-name') || '';
-        if (name.includes(query)) {
-          card.style.display = "flex";
-        } else {
-          card.style.display = "none";
-        }
-      });
-    }
-
-    function openCheckout(id) {
-      activeOrderProduct = window.products.find(p => p.id === id);
-      document.getElementById('checkoutModal').style.display = 'flex';
-    }
-
-    function closeCheckout() {
-      document.getElementById('checkoutModal').style.display = 'none';
-    }
-
-    function sendOrder(platform) {
-      const name = document.getElementById('custName').value.trim();
-      const phone = document.getElementById('custPhone').value.trim();
-      const address = document.getElementById('custAddress').value.trim();
-
-      if (!name || !phone || !address) {
-        alert('කරුණාකර සියලුම විස්තර ඇතුළත් කරන්න!');
-        return;
-      }
-
-      if (!activeOrderProduct) return;
-
-      const msg = `🛒 *NEW ORDER - NEXUS CHOICE*%0A----------------------------------%0A📦 *Item:* ${activeOrderProduct.title}%0A💰 *Price:* Rs. ${activeOrderProduct.discountPrice}%0A%0A👤 *Customer Name:* ${name}%0A📞 *Phone:* ${phone}%0A🏠 *Address:* ${address}%0A----------------------------------`;
-
-      if (platform === 'wa') {
-        window.open(`https://wa.me/94768083806?text=${msg}`, '_blank');
-      } else if (platform === 'fb') {
-        window.open(`https://m.me/1220572857797659?text=${encodeURIComponent(msg)}`, '_blank');
-      }
-      closeCheckout();
-    }
-  </script>
-</body>
-</html>
+    import { initializeApp } from
