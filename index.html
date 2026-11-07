@@ -6,12 +6,117 @@
       { id: 4, title: "Beike women's quartz watches", status: "out", originalPrice: 2500, discountPrice: 1990, images: ["https://i.ibb.co/WpzX3wB6/beike-women.png"] }
     ];
 
-    // Get products fresh from localStorage on load
-    let products = JSON.parse(localStorage.getItem('nexus_products'));
-    if (!products) {
-      products = defaultProducts;
-      localStorage.setItem('nexus_products', JSON.stringify(products));
+    let products = defaultProducts;
+    try {
+      let saved = localStorage.getItem('nexus_products');
+      if (saved) {
+        let parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          products = parsed;
+        }
+      }
+    } catch (e) {
+      console.error("Data load error, using defaults", e);
     }
     
     let activeOrderProduct = null;
-    ...
+
+    function renderStorefront() {
+      const grid = document.getElementById('productGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      products.forEach((p) => {
+        const isOutOfStock = p.status === 'out';
+        const stockBadge = isOutOfStock 
+          ? `<span class="badge-stock out-of-stock">Out of Stock</span>`
+          : `<span class="badge-stock in-stock">In Stock</span>`;
+
+        let thumbBarHTML = '';
+        if (p.images && p.images.length > 1) {
+          thumbBarHTML = `<div class="thumb-bar">` + 
+            p.images.map((img, i) => `<img src="${img}" class="thumb-img ${i===0?'active':''}" onclick="changeMainImg(this, 'main-img-${p.id}')">`).join('') + 
+            `</div>`;
+        }
+
+        const cardHTML = `
+          <div class="card" data-name="${(p.title || '').toLowerCase()}">
+            ${stockBadge}
+            <div class="card-img-container">
+              <img id="main-img-${p.id}" src="${p.images && p.images[0] ? p.images[0] : ''}" class="main-card-img" alt="${p.title}">
+            </div>
+            ${thumbBarHTML}
+            <div class="card-details">
+              <h3>${p.title}</h3>
+              <div class="price-box">
+                <span class="price-discount">Rs. ${Number(p.discountPrice || 0).toLocaleString()}</span>
+                ${p.originalPrice ? `<span class="price-original">Rs. ${Number(p.originalPrice).toLocaleString()}</span>` : ''}
+              </div>
+              <button class="btn-buy" ${isOutOfStock ? 'disabled' : ''} onclick="openCheckout(${p.id})">
+                ${isOutOfStock ? 'ලබාගත නොහැක' : 'ඇණවුම් කරන්න'}
+              </button>
+            </div>
+          </div>
+        `;
+        grid.innerHTML += cardHTML;
+      });
+    }
+
+    function changeMainImg(thumb, mainImgId) {
+      const mainImg = document.getElementById(mainImgId);
+      if(mainImg) mainImg.src = thumb.src;
+      const parent = thumb.parentElement;
+      if(parent) {
+        parent.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+      }
+      thumb.classList.add('active');
+    }
+
+    function searchProducts() {
+      let query = document.getElementById('searchInput').value.toLowerCase();
+      let cards = document.querySelectorAll('.product-grid .card');
+      
+      cards.forEach(card => {
+        let name = card.getAttribute('data-name') || '';
+        if (name.includes(query)) {
+          card.style.display = "flex";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    function openCheckout(id) {
+      activeOrderProduct = products.find(p => p.id === id);
+      document.getElementById('checkoutModal').style.display = 'flex';
+    }
+
+    function closeCheckout() {
+      document.getElementById('checkoutModal').style.display = 'none';
+    }
+
+    function sendOrder(platform) {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+
+      if (!name || !phone || !address) {
+        alert('කරුණාකර සියලුම විස්තර ඇතුළත් කරන්න!');
+        return;
+      }
+
+      if (!activeOrderProduct) return;
+
+      const msg = `🛒 *NEW ORDER - NEXUS CHOICE*%0A----------------------------------%0A📦 *Item:* ${activeOrderProduct.title}%0A💰 *Price:* Rs. ${activeOrderProduct.discountPrice}%0A%0A👤 *Customer Name:* ${name}%0A📞 *Phone:* ${phone}%0A🏠 *Address:* ${address}%0A----------------------------------`;
+
+      if (platform === 'wa') {
+        window.open(`https://wa.me/94768083806?text=${msg}`, '_blank');
+      } else if (platform === 'fb') {
+        window.open(`https://m.me/1220572857797659?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+      closeCheckout();
+    }
+
+    // Initialize storefront on load
+    renderStorefront();
+  </script>
