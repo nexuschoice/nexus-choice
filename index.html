@@ -71,10 +71,11 @@
     footer { text-align: center; padding: 20px; color: #6b7280; font-size: 13px; margin-top: 40px; background: white; border-top: 1px solid #e5e7eb; }
   </style>
 
-  <!-- Firebase Auth Script -->
+  <!-- Firebase Modular Scripts (Auth & Firestore) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDV4r6Z8YGLS6U33CnptF0IDq_oGyquojY",
@@ -88,6 +89,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
     window.loginGoogle = () => { signInWithPopup(auth, provider).catch(error => console.error(error)); };
@@ -111,6 +113,26 @@
         }
       }
     });
+
+    // Fetch Products from Firestore Cloud Database
+    async function loadStoreProducts() {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = `<div class="no-products">⏳ නිෂ්පාදන පූරණය වෙමින් පවතී...</div>`;
+      
+      try {
+        const querySnapshot = await getDocs(collection(db, "products"));
+        window.products = [];
+        querySnapshot.forEach((doc) => {
+          window.products.push({ id: doc.id, ...doc.data() });
+        });
+        renderStorefront();
+      } catch (err) {
+        console.error("Error fetching products: ", err);
+        grid.innerHTML = `<div class="no-products">❌ නිෂ්පාදන ලබාගැනීමේ දෝෂයක් සිදු විය.</div>`;
+      }
+    }
+
+    window.onload = loadStoreProducts;
   </script>
 </head>
 <body>
@@ -128,7 +150,7 @@
   <div class="container">
     <div class="section-title">අපගේ නිෂ්පාදන (Products)</div>
     <div class="product-grid" id="productGrid">
-      <!-- Products Loaded Dynamically -->
+      <!-- Products Loaded from Cloud -->
     </div>
   </div>
 
@@ -153,20 +175,7 @@
   </footer>
 
   <script>
-    // Clean loading: Empty array by default so admin adds items fresh
-    let products = [];
-    try {
-      const savedData = localStorage.getItem('nexus_products');
-      if (savedData) {
-        const parsed = JSON.parse(savedData);
-        if (Array.isArray(parsed)) {
-          products = parsed;
-        }
-      }
-    } catch (err) {
-      console.error("Error loading products:", err);
-    }
-
+    window.products = window.products || [];
     let activeOrderProduct = null;
 
     function renderStorefront() {
@@ -174,12 +183,12 @@
       if (!grid) return;
       grid.innerHTML = '';
 
-      if (products.length === 0) {
+      if (window.products.length === 0) {
         grid.innerHTML = `<div class="no-products">📦 තවම නිෂ්පාදන කිසිවක් එකතු කර නොමැත. කරුණාකර Admin Panel එක හරහා නිෂ්පාදන එකතු කරන්න.</div>`;
         return;
       }
 
-      products.forEach((p) => {
+      window.products.forEach((p) => {
         const isOutOfStock = p.status === 'out';
         const stockBadge = isOutOfStock 
           ? `<span class="badge-stock out-of-stock">Out of Stock</span>`
@@ -206,7 +215,7 @@
                 <span class="price-discount">Rs. ${Number(p.discountPrice || 0).toLocaleString()}</span>
                 ${p.originalPrice ? `<span class="price-original">Rs. ${Number(p.originalPrice).toLocaleString()}</span>` : ''}
               </div>
-              <button class="btn-buy" ${isOutOfStock ? 'disabled' : ''} onclick="openCheckout(${p.id})">
+              <button class="btn-buy" ${isOutOfStock ? 'disabled' : ''} onclick="openCheckout('${p.id}')">
                 ${isOutOfStock ? 'ලබාගත නොහැක' : 'ඇණවුම් කරන්න'}
               </button>
             </div>
@@ -241,7 +250,7 @@
     }
 
     function openCheckout(id) {
-      activeOrderProduct = products.find(p => p.id === id);
+      activeOrderProduct = window.products.find(p => p.id === id);
       document.getElementById('checkoutModal').style.display = 'flex';
     }
 
@@ -270,8 +279,6 @@
       }
       closeCheckout();
     }
-
-    renderStorefront();
   </script>
 </body>
 </html>
