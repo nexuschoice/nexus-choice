@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Choice | Online Store</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+    body { background-color: #f3f4f6; color: #1f2937; }
+    
+    header { background: #1e293b; color: white; padding: 25px 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    header h1 { color: #f59e0b; font-size: 32px; letter-spacing: 1px; }
+    header p { margin-top: 5px; color: #9ca3af; font-size: 14px; }
+    
+    .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+    .section-title { font-size: 22px; font-weight: bold; margin-bottom: 20px; color: #1e293b; border-bottom: 2px solid #f59e0b; display: inline-block; padding-bottom: 5px; }
+    
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+    
+    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e5e7eb; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); }
+    
+    .card img { width: 100%; height: 230px; object-fit: cover; background-color: #f9fafb; }
+    
+    .card-details { padding: 18px; }
+    .card-details h3 { font-size: 18px; color: #111827; margin-bottom: 8px; }
+    .price { font-size: 20px; color: #059669; font-weight: bold; margin-bottom: 15px; }
+    
+    .btn-buy { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: #25D366; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px; border: none; cursor: pointer; transition: background 0.2s; }
+    .btn-buy:hover { background: #1eb854; }
+    
+    footer { text-align: center; padding: 20px; color: #6b7280; font-size: 13px; margin-top: 50px; border-top: 1px solid #e5e7eb; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Nexus Choice</h1>
+    <p>උසස් තත්ත්වයේ නිෂ්පාදන අන්තර්ජාලය හරහා විශ්වාසනීයව ලබාගන්න</p>
+  </header>
+
+  <div class="container">
+    <div class="section-title">අපගේ නිෂ්පාදන</div>
+    
+    <div class="product-grid">
+      
+      <!-- Product 1 -->
+      <div class="card">
+        <img src="https://i.ibb.co/v6LkbPJZ/T800.png" alt="T800 Smart Watch">
+        <div class="card-details">
+          <h3>T800 Ultra Smart Watch</h3>
+          <p class="price">Rs. 2,500</p>
+          <button class="btn-buy" onclick="orderViaWhatsApp('T800 Ultra Smart Watch', 'Rs. 2,500')">
+            WhatsApp හරහා ඇණවුම් කරන්න
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Nexus Choice. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function orderViaWhatsApp(productName, price) {
+      const myNumber = "94768083806"; 
+      const message = `හලෝ Nexus Choice, මට මෙන්න මේ භාණ්ඩය මිලදී ගැනීමට අවශ්‍යයි:%0A%0A📦 *Product:* ${productName}%0A💰 *Price:* ${price}`;
+      window.open(`https://wa.me/${myNumber}?text=${message}`, '_blank');
+    }
+  </script>
+
+</body>
+</html>
