@@ -29,6 +29,166 @@
     .btn-edit { background: #10b981; }
     .btn-exit { background: #6b7280; text-decoration: none; padding: 6px 12px; border-radius: 6px; color: white; font-size: 13px; }
   </style>
+
+  <!-- Firebase SDK for Admin -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV4r6Z8YGLS6U33CnptF0IDq_oGyquojY",
+      authDomain: "nexus-choice.firebaseapp.com",
+      projectId: "nexus-choice",
+      storageBucket: "nexus-choice.firebasestorage.app",
+      messagingSenderId: "914919173575",
+      appId: "1:914919173575:web:628ceaf8e690c55c307de2",
+      measurementId: "G-HNKH3DCL4L"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.checkAdminLogin = () => {
+      const pass = document.getElementById('adminPassInput').value;
+      if (pass === "nexus123") {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        fetchAdminProducts();
+      } else {
+        alert("වැරදි මුරපදයක් (Incorrect Password)!");
+      }
+    };
+
+    window.products = [];
+
+    async function fetchAdminProducts() {
+      const tbody = document.getElementById('adminProductTable');
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">දත්ත ලබාගනිමින් පවතී...</td></tr>`;
+      
+      try {
+        const querySnapshot = await getDocs(collection(db, "products"));
+        window.products = [];
+        querySnapshot.forEach((d) => {
+          window.products.push({ id: d.id, ...d.data() });
+        });
+        renderAdminTable();
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">දෝෂයක් සිදු විය.</td></tr>`;
+      }
+    }
+
+    function renderAdminTable() {
+      const tbody = document.getElementById('adminProductTable');
+      tbody.innerHTML = '';
+
+      if (window.products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6b7280;">තවම නිෂ්පාදන එකතු කර නැත.</td></tr>`;
+        return;
+      }
+
+      window.products.forEach(p => {
+        let mainImg = (p.images && p.images.length > 0) ? p.images[0] : '';
+        tbody.innerHTML += `
+          <tr>
+            <td><img src="${mainImg}" width="40" height="40" style="object-fit:cover; border-radius:4px;"></td>
+            <td><strong>${p.title || ''}</strong></td>
+            <td>Rs. ${p.discountPrice || 0} ${p.originalPrice ? `<small><del>(Rs. ${p.originalPrice})</del></small>`:''}</td>
+            <td>
+              <button class="btn-action btn-toggle" onclick="toggleStock('${p.id}', '${p.status}')">
+                ${p.status === 'in' ? '🟢 In Stock' : '🔴 Out of Stock'}
+              </button>
+            </td>
+            <td>
+              <button class="btn-action btn-edit" onclick="editProduct('${p.id}')">Edit</button>
+              <button class="btn-action btn-del" onclick="deleteProduct('${p.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    window.toggleStock = async (id, currentStatus) => {
+      const newStatus = currentStatus === 'in' ? 'out' : 'in';
+      try {
+        await updateDoc(doc(db, "products", id), { status: newStatus });
+        fetchAdminProducts();
+      } catch (e) {
+        alert("Stock Update කිරීමට නොහැකි විය: " + e.message);
+      }
+    };
+
+    window.deleteProduct = async (id) => {
+      if (confirm("මෙම Product එක ඉවත් කිරීමට අවශ්‍යද?")) {
+        try {
+          await deleteDoc(doc(db, "products", id));
+          fetchAdminProducts();
+        } catch (e) {
+          alert("ඉවත් කිරීමේ දෝෂයක්: " + e.message);
+        }
+      }
+    };
+
+    window.editProduct = (id) => {
+      const p = window.products.find(item => item.id === id);
+      if(!p) return;
+
+      document.getElementById('editProductId').value = p.id;
+      document.getElementById('pTitle').value = p.title || '';
+      document.getElementById('pStatus').value = p.status || 'in';
+      document.getElementById('pOriginalPrice').value = p.originalPrice || '';
+      document.getElementById('pDiscountPrice').value = p.discountPrice || '';
+
+      for(let i=1; i<=5; i++) {
+        const input = document.getElementById(`pImg${i}`);
+        if(input) input.value = (p.images && p.images[i-1]) ? p.images[i-1] : '';
+      }
+
+      document.getElementById('submitBtn').innerText = "💾 Update Product";
+      document.getElementById('cancelEditBtn').style.display = 'block';
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
+    window.resetForm = () => {
+      document.getElementById('addProductForm').reset();
+      document.getElementById('editProductId').value = '';
+      document.getElementById('submitBtn').innerText = "+ Add New Product";
+      document.getElementById('cancelEditBtn').style.display = 'none';
+    };
+
+    window.saveProduct = async (e) => {
+      e.preventDefault();
+      const editId = document.getElementById('editProductId').value;
+      const imgs = [
+        document.getElementById('pImg1').value,
+        document.getElementById('pImg2').value,
+        document.getElementById('pImg3').value,
+        document.getElementById('pImg4').value,
+        document.getElementById('pImg5').value
+      ].filter(url => url.trim() !== '');
+
+      const title = document.getElementById('pTitle').value;
+      const status = document.getElementById('pStatus').value;
+      const originalPrice = Number(document.getElementById('pOriginalPrice').value) || null;
+      const discountPrice = Number(document.getElementById('pDiscountPrice').value);
+
+      const productData = { title, status, originalPrice, discountPrice, images: imgs };
+
+      try {
+        if (editId) {
+          await updateDoc(doc(db, "products", editId), productData);
+          alert("Product එක සාර්ථකව Update විය!");
+        } else {
+          await addDoc(collection(db, "products"), productData);
+          alert("Product එක සාර්ථකව Cloud Database එකට එකතු විය!");
+        }
+        fetchAdminProducts();
+        window.resetForm();
+      } catch (err) {
+        alert("සුරැකීමේ දෝෂයක් සිදු විය: " + err.message);
+      }
+    };
+  </script>
 </head>
 <body>
 
@@ -42,7 +202,7 @@
   <!-- Admin Dashboard Panel -->
   <div id="adminDashboard">
     <div class="admin-header">
-      <h2>Nexus Choice - Admin Dashboard</h2>
+      <h2>Nexus Choice - Admin Dashboard (Cloud)</h2>
       <a href="index.html" class="btn-exit" target="_blank">🏠 View Store</a>
     </div>
 
@@ -110,147 +270,5 @@
       </tbody>
     </table>
   </div>
-
-  <script>
-    let products = [];
-    try {
-      const saved = localStorage.getItem('nexus_products');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          products = parsed;
-        }
-      }
-    } catch (e) {
-      products = [];
-    }
-
-    function checkAdminLogin() {
-      const pass = document.getElementById('adminPassInput').value;
-      if (pass === "nexus123") {
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('adminDashboard').style.display = 'block';
-        renderAdminTable();
-      } else {
-        alert("වැරදි මුරපදයක් (Incorrect Password)!");
-      }
-    }
-
-    function renderAdminTable() {
-      const tbody = document.getElementById('adminProductTable');
-      if(!tbody) return;
-      tbody.innerHTML = '';
-
-      if (products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6b7280;">තවම නිෂ්පාදන එකතු කර නැත.</td></tr>`;
-        return;
-      }
-
-      products.forEach(p => {
-        let mainImg = (p.images && p.images.length > 0) ? p.images[0] : '';
-        tbody.innerHTML += `
-          <tr>
-            <td><img src="${mainImg}" width="40" height="40" style="object-fit:cover; border-radius:4px;"></td>
-            <td><strong>${p.title || ''}</strong></td>
-            <td>Rs. ${p.discountPrice || 0} ${p.originalPrice ? `<small><del>(Rs. ${p.originalPrice})</del></small>`:''}</td>
-            <td>
-              <button class="btn-action btn-toggle" onclick="toggleStock(${p.id})">
-                ${p.status === 'in' ? '🟢 In Stock' : '🔴 Out of Stock'}
-              </button>
-            </td>
-            <td>
-              <button class="btn-action btn-edit" onclick="editProduct(${p.id})">Edit</button>
-              <button class="btn-action btn-del" onclick="deleteProduct(${p.id})">Delete</button>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function toggleStock(id) {
-      products = products.map(p => p.id === id ? {...p, status: p.status === 'in' ? 'out' : 'in'} : p);
-      saveData();
-    }
-
-    function deleteProduct(id) {
-      if (confirm("මෙම Product එක ඉවත් කිරීමට අවශ්‍යද?")) {
-        products = products.filter(p => p.id !== id);
-        saveData();
-      }
-    }
-
-    function editProduct(id) {
-      const p = products.find(item => item.id === id);
-      if(!p) return;
-
-      document.getElementById('editProductId').value = p.id;
-      document.getElementById('pTitle').value = p.title || '';
-      document.getElementById('pStatus').value = p.status || 'in';
-      document.getElementById('pOriginalPrice').value = p.originalPrice || '';
-      document.getElementById('pDiscountPrice').value = p.discountPrice || '';
-
-      for(let i=1; i<=5; i++) {
-        const input = document.getElementById(`pImg${i}`);
-        if(input) input.value = (p.images && p.images[i-1]) ? p.images[i-1] : '';
-      }
-
-      document.getElementById('submitBtn').innerText = "💾 Update Product";
-      document.getElementById('cancelEditBtn').style.display = 'block';
-      window.scrollTo({top: 0, behavior: 'smooth'});
-    }
-
-    function resetForm() {
-      document.getElementById('addProductForm').reset();
-      document.getElementById('editProductId').value = '';
-      document.getElementById('submitBtn').innerText = "+ Add New Product";
-      document.getElementById('cancelEditBtn').style.display = 'none';
-    }
-
-    function saveProduct(e) {
-      e.preventDefault();
-      const editId = document.getElementById('editProductId').value;
-      const imgs = [
-        document.getElementById('pImg1').value,
-        document.getElementById('pImg2').value,
-        document.getElementById('pImg3').value,
-        document.getElementById('pImg4').value,
-        document.getElementById('pImg5').value
-      ].filter(url => url.trim() !== '');
-
-      const title = document.getElementById('pTitle').value;
-      const status = document.getElementById('pStatus').value;
-      const originalPrice = Number(document.getElementById('pOriginalPrice').value) || null;
-      const discountPrice = Number(document.getElementById('pDiscountPrice').value);
-
-      if (editId) {
-        products = products.map(p => {
-          if (String(p.id) === String(editId)) {
-            return { ...p, title, status, originalPrice, discountPrice, images: imgs };
-          }
-          return p;
-        });
-        alert("Product එක සාර්ථකව Update විය!");
-      } else {
-        const newP = {
-          id: Date.now(),
-          title,
-          status,
-          originalPrice,
-          discountPrice,
-          images: imgs
-        };
-        products.push(newP);
-        alert("Product එක සාර්ථකව එකතු විය!");
-      }
-
-      saveData();
-      resetForm();
-    }
-
-    function saveData() {
-      localStorage.setItem('nexus_products', JSON.stringify(products));
-      renderAdminTable();
-    }
-  </script>
 </body>
 </html>
