@@ -41,8 +41,14 @@ views.dashboard = async m => {
 views.products = async m => {
   const [P, B, C] = await Promise.all([ls("products"), safe("brands"), safe("categories")]);
   const bl = B || [], cl = C || [], nm = (a, id) => a.find(x => x.id === id)?.name || "";
-  m.innerHTML = `<div class="view-heading"><h2>Products</h2><div><button class="btn ghost" type="button" data-export="products">Export for Google Sheets ↓</button></div></div><p class="sheet-hint">Export the catalogue as CSV or import an Excel workbook. Existing products and fields are not changed by an import; each valid row is added as a new product.</p>
-  <div class="bulk-import"><label for="bulkProducts">Import products (.xlsx, .xls, .csv)</label><input id="bulkProducts" type="file" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)"><small class="hint">Required columns: title and discountPrice. Recommended: sku, stock, images, brandId, categoryId, visibility, deliveryType, deliveryFee, description, videoUrl.</small></div>
+  m.innerHTML = `<div class="view-heading"><h2>Products</h2><button class="btn ghost" type="button" data-export="products">Export CSV ↓</button></div>
+  <section class="bulk-panel">
+    <div><h3>Bulk add products</h3><p>Upload a CSV or Excel file to add many products at once. Use the sample template to keep column names correct.</p></div>
+    <div class="bulk-actions"><button class="btn ghost" type="button" data-template>Download CSV template</button><label class="btn bulk-file">Choose CSV / Excel file<input id="productImportFile" type="file" accept=".csv,.xlsx,.xls" hidden></label></div>
+    <p class="bulk-help">Required columns: title, sku, discountPrice, stock, images. Optional: brandId, categoryId, originalPrice, description, deliveryType, deliveryFee, youtubeUrl, tiktokUrl, videoUrl.</p>
+    <div id="importStatus" class="import-status" aria-live="polite"></div>
+  </section>
+  <p class="sheet-hint">Add or edit a product below. Product videos can use YouTube, TikTok or a direct video URL.</p>
   <form id="pf" class="grid"><input type="hidden" name="pid">
     <label>Product name<input name="title" required></label>
     <label>SKU<input name="sku" required></label>
@@ -59,7 +65,9 @@ views.products = async m => {
     <label class="full">Description<textarea name="description" rows="8" placeholder="Short intro about the product.&#10;&#10;- Water resistant&#10;- 7 day battery&#10;Warranty: 6 months"></textarea></label>
     <div class="full"><small class="hint">Tip: a blank line starts a new paragraph. Start a line with - for a bullet point. A line like "Warranty: 6 months" shows the label in bold. This is how customers will see it:</small><div id="descPrev" class="desc preview"></div></div>
     <label class="full">Image links, one per line (max 8, https only)<textarea name="images" rows="4" required></textarea></label>
-    <label class="full">Product video URL (YouTube or Vimeo)<input name="videoUrl" type="url" placeholder="https://www.youtube.com/watch?v=..."></label>
+    <label>YouTube video link<input name="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=..."></label>
+    <label>TikTok video link<input name="tiktokUrl" type="url" placeholder="https://www.tiktok.com/@user/video/..."></label>
+    <label class="full">Other video URL (optional)<input name="videoUrl" type="url" placeholder="YouTube / Vimeo embed or direct video URL"></label>
     <div class="full"><button class="btn">Save product</button> <button type="button" class="btn gray" data-a="reset">Clear form</button></div>
   </form>
   ${tbl(["Image", "Name", "SKU", "Brand", "Price", "Delivery", "Stock", "Visibility", ""], P.map(p => [
@@ -67,18 +75,58 @@ views.products = async m => {
     p.title, p.sku, nm(bl, p.brandId), money(p.discountPrice), p.deliveryType === "paid" ? money(p.deliveryFee) : p.deliveryType === "free" ? "Free" : "-", p.stock, p.visibility,
     {h: `<button class="sm" data-a="edit" data-id="${esc(p.id)}">Edit</button> <button class="sm red" data-a="del" data-id="${esc(p.id)}">Delete</button>`}]))}`;
   const f = document.getElementById("pf"), el = f.elements;
+  const importStatus = document.getElementById("importStatus");
+  const fileInput = document.getElementById("productImportFile");
+  const templateHeaders = ["title","sku","discountPrice","stock","images","brandId","categoryId","originalPrice","costPrice","visibility","featured","deliveryType","deliveryFee","description","youtubeUrl","tiktokUrl","videoUrl"];
+  m.querySelector("[data-template]").onclick = () => downloadCSV("nexus-choice-product-import-template.csv", templateHeaders, [["Sample Product","NC-001",2500,10,"https://example.com/product.jpg","","",3000,1500,"active",false,"free",0,"Product description","https://www.youtube.com/watch?v=VIDEO_ID","https://www.tiktok.com/@username/video/1234567890",""]]);
+  fileInput.onchange = async () => {
+    const file = fileInput.files?.[0]; if (!file) return;
+    try {
+      if (!window.XLSX) throw new Error("Spreadsheet reader did not load. Refresh the admin page and try again.");
+      const data = new Uint8Array(await file.arrayBuffer());
+      const wb = window.XLSX.read(data, {type:"array"});
+      const rows = window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:""});
+      if (!rows.length) throw new Error("The selected file has no product rows.");
+      const norm = v => String(v ?? "").trim();
+      const get = (r, ...keys) => { const map = Object.fromEntries(Object.entries(r).map(([k,v]) => [k.toLowerCase().replace(/[ _-]/g,""), v])); for (const k of keys) { const v=map[k.toLowerCase().replace(/[ _-]/g,"")]; if (v !== undefined && v !== "") return v; } return ""; };
+      const parsed = rows.map((r, idx) => {
+        const title = norm(get(r,"title","name","productname"));
+        const sku = norm(get(r,"sku","productsku"));
+        const price = Number(get(r,"discountPrice","sellingPrice","price"));
+        const stock = Number(get(r,"stock","quantity","stockquantity"));
+        let imagesRaw = get(r,"images","imageUrls","image");
+        let images = Array.isArray(imagesRaw) ? imagesRaw : norm(imagesRaw).split(/[|;
+]/).map(x=>x.trim()).filter(Boolean);
+        for (let n=1;n<=8;n++) { const v=norm(get(r,`img${n}`,`image${n}`)); if(v) images.push(v); }
+        images = [...new Set(images)].slice(0,8);
+        if (!title || !sku || !Number.isFinite(price) || price < 0 || !Number.isFinite(stock) || stock < 0 || !images.length || images.some(u=>!/^https:\/\//i.test(u))) throw new Error(`Row ${idx+2}: check title, sku, discountPrice, stock and HTTPS image link(s).`);
+        const deliveryType = norm(get(r,"deliveryType")).toLowerCase() === "paid" ? "paid" : "free";
+        const deliveryFee = Number(get(r,"deliveryFee","deliveryCharge")) || 0;
+        if (deliveryType === "paid" && deliveryFee <= 0) throw new Error(`Row ${idx+2}: paid delivery needs a deliveryFee.`);
+        return {title, sku, slug:slug(title), brandId:norm(get(r,"brandId")), categoryId:norm(get(r,"categoryId")), discountPrice:price, originalPrice:Number(get(r,"originalPrice"))||null, costPrice:Number(get(r,"costPrice"))||null, stock:Math.floor(stock), status:stock>0?"in":"out", visibility:norm(get(r,"visibility"))||"active", featured:[true,"true",1,"1","yes"].includes(get(r,"featured").toString().toLowerCase()), deliveryType, deliveryFee:deliveryType==="paid"?Math.round(deliveryFee):0, images, description:norm(get(r,"description")), youtubeUrl:norm(get(r,"youtubeUrl","youtube")), tiktokUrl:norm(get(r,"tiktokUrl","tiktok")), videoUrl:norm(get(r,"videoUrl"))};
+      });
+      const duplicates = parsed.filter((x,i)=>parsed.findIndex(y=>y.sku===x.sku)!==i || P.some(y=>y.sku===x.sku));
+      if (duplicates.length) throw new Error("Duplicate SKU found: " + [...new Set(duplicates.map(x=>x.sku))].join(", "));
+      if (!confirm(`Import ${parsed.length} product(s) into Nexus Choice?`)) return;
+      fileInput.disabled = true; importStatus.textContent = "Importing products…";
+      for (const item of parsed) await addDoc(collection(db,"products"), {...item, createdAt:serverTimestamp()});
+      importStatus.textContent = `Successfully added ${parsed.length} product(s).`;
+      alert(`Successfully added ${parsed.length} product(s).`); views.products(m);
+    } catch (err) { importStatus.textContent = err.message; alert("Import failed: " + err.message); }
+    finally { fileInput.disabled = false; fileInput.value = ""; }
+  };
   const syncFee = () => { const paid = el.deliveryType.value === "paid"; el.deliveryFee.disabled = !paid; if (!paid) el.deliveryFee.value = ""; };
   const prev = () => { document.getElementById("descPrev").innerHTML = fmtDesc(el.description.value) || '<span class="hint">Your description preview appears here.</span>'; };
   el.deliveryType.addEventListener("change", syncFee); el.description.addEventListener("input", prev); syncFee(); prev();
   m.onclick = async e => {
     const exportBtn = e.target.closest('[data-export="products"]');
-    if (exportBtn) { downloadCSV("nexus-choice-products.csv", ["Product ID","Name","SKU","Brand ID","Category ID","Cost Price","Original Price","Selling Price","Stock","Visibility","Featured","Delivery Type","Delivery Fee","Description","Video URL","Images"], P.map(x => [x.id,x.title,x.sku,x.brandId,x.categoryId,x.costPrice,x.originalPrice,x.discountPrice,x.stock,x.visibility,x.featured,x.deliveryType,x.deliveryFee,x.description,x.videoUrl,(x.images || []).join(" | ")])); return; }
+    if (exportBtn) { downloadCSV("nexus-choice-products.csv", ["Product ID","Name","SKU","Brand ID","Category ID","Cost Price","Original Price","Selling Price","Stock","Visibility","Featured","Delivery Type","Delivery Fee","Description","YouTube URL","TikTok URL","Video URL"], P.map(x => [x.id,x.title,x.sku,x.brandId,x.categoryId,x.costPrice,x.originalPrice,x.discountPrice,x.stock,x.visibility,x.featured,x.deliveryType,x.deliveryFee,x.description,x.youtubeUrl,x.tiktokUrl,x.videoUrl])); return; }
     const b = e.target.closest("[data-a]"); if (!b) return;
     const a = b.dataset.a, id = b.dataset.id;
     if (a === "reset") { f.reset(); el.pid.value = ""; syncFee(); prev(); }
     if (a === "edit") {
       const p = P.find(x => x.id === id);
-      ["title", "sku", "brandId", "categoryId", "costPrice", "originalPrice", "discountPrice", "description", "videoUrl"].forEach(k => el[k].value = p[k] ?? "");
+      ["title", "sku", "brandId", "categoryId", "costPrice", "originalPrice", "discountPrice", "description", "youtubeUrl", "tiktokUrl", "videoUrl"].forEach(k => el[k].value = p[k] ?? "");
       el.stock.value = p.stock ?? (p.status === "out" ? 0 : 1);
       el.visibility.value = p.visibility || "active";
       el.featured.checked = !!p.featured;
@@ -95,17 +143,15 @@ views.products = async m => {
     const n = k => Number(el[k].value);
     const imgs = el.images.value.split("\n").map(s => s.trim()).filter(Boolean).slice(0, 8);
     if (!imgs.length || imgs.some(u => !u.startsWith("https://"))) return alert("Image links must start with https://");
-    if (!Number.isFinite(n("discountPrice")) || n("discountPrice") <= 0 || !Number.isFinite(n("stock")) || n("stock") < 0) return alert("Enter a valid selling price above zero and a valid stock quantity.");
-    if (el.originalPrice.value && (!Number.isFinite(n("originalPrice")) || n("originalPrice") < 0)) return alert("Enter a valid original price.");
-    if (el.costPrice.value && (!Number.isFinite(n("costPrice")) || n("costPrice") < 0)) return alert("Enter a valid cost price.");
-    if (el.videoUrl.value && !/^https:\/\//i.test(el.videoUrl.value.trim())) return alert("Video URL must start with https://");
+    if (n("discountPrice") < 0 || n("stock") < 0) return alert("Price and stock cannot be negative.");
     if (el.deliveryType.value === "paid" && !(n("deliveryFee") > 0)) return alert("Enter the delivery charge for paid delivery.");
     const sku = el.sku.value.trim();
     if (P.some(p => p.sku === sku && p.id !== el.pid.value)) return alert("That SKU is already used.");
     const d = {title: el.title.value.trim(), sku, slug: slug(el.title.value), brandId: el.brandId.value, categoryId: el.categoryId.value,
-      description: el.description.value.trim(), videoUrl: el.videoUrl.value.trim(), costPrice: n("costPrice") || null, originalPrice: n("originalPrice") || null,
+      description: el.description.value.trim(), costPrice: n("costPrice") || null, originalPrice: n("originalPrice") || null,
       discountPrice: n("discountPrice"), stock: Math.floor(n("stock")), visibility: el.visibility.value, featured: el.featured.checked,
       images: imgs, status: n("stock") > 0 ? "in" : "out",
+      youtubeUrl: el.youtubeUrl.value.trim(), tiktokUrl: el.tiktokUrl.value.trim(), videoUrl: el.videoUrl.value.trim(),
       deliveryType: el.deliveryType.value, deliveryFee: el.deliveryType.value === "paid" ? Math.round(n("deliveryFee")) : 0};   // "status" keeps the current storefront working
     try {
       if (el.pid.value) await updateDoc(doc(db, "products", el.pid.value), d);
