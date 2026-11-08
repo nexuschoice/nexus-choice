@@ -1,6 +1,7 @@
 import {auth, db, $, esc, money} from "./firebase.js";
 import {GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {collection, getDocs, doc, getDoc, setDoc, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {initPrefs} from "./ui.js";
 
 export const WA = "94768083806"; // Business WhatsApp number; update here if it changes.
 export const DISTRICTS = ["Ampara","Anuradhapura","Badulla","Batticaloa","Colombo","Galle","Gampaha","Hambantota","Jaffna","Kalutara","Kandy","Kegalle","Kilinochchi","Kurunegala","Mannar","Matale","Matara","Monaragala","Mullaitivu","Nuwara Eliya","Polonnaruwa","Puttalam","Ratnapura","Trincomalee","Vavuniya"];
@@ -9,6 +10,13 @@ export const stockOf = p => Math.max(0, Number(p.stock ?? (p.status === "out" ? 
 export const off = p => Number(p.originalPrice) > Number(p.discountPrice) && Number(p.originalPrice) > 0 ? Math.round(100 * (1 - Number(p.discountPrice) / Number(p.originalPrice))) : 0;
 export const brandName = id => S.brands.find(b => b.id === id)?.name || "";
 export const catName = id => S.cats.find(c => c.id === id)?.name || "";
+
+// Delivery: each product is "free" or "paid" (with a fee). One parcel per order, so the order is
+// charged the highest fee among its items, and delivery is free when every item is free.
+export const feeOf = p => p.deliveryType === "paid" ? Math.max(0, Number(p.deliveryFee) || 0) : 0;
+export const deliveryFor = ps => ps.reduce((m, p) => Math.max(m, feeOf(p)), 0);
+const dtag = p => p.deliveryType === "paid" ? `<span class="dtag">Delivery ${money(feeOf(p))}</span>` : p.deliveryType === "free" ? `<span class="dtag free">Free delivery</span>` : "";
+const bumpCart = () => { const b = $("cartBtn"); if (!b) return; b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); };
 
 const KEYS = ["name", "phone", "phone2", "address", "city", "district"];
 export const fillForm = (f, d) => KEYS.forEach(k => { if (d && d[k] != null && f.elements[k]) f.elements[k].value = d[k]; });
@@ -39,7 +47,7 @@ export function card(p) {
   return `<article class="card"><a class="pic" href="product.html?id=${encodeURIComponent(p.id)}"><img src="${image}" alt="${esc(p.title)}" width="320" height="320" loading="lazy" decoding="async">
     ${d ? `<span class="badge">-${d}%</span>` : ""}${n <= 0 ? `<span class="badge out">Sold out</span>` : ""}</a>
     <div class="body"><small>${esc(brandName(p.brandId))}</small><h3><a href="product.html?id=${encodeURIComponent(p.id)}">${esc(p.title)}</a></h3>
-    <div class="price"><b>${money(p.discountPrice)}</b>${d ? `<s>${money(p.originalPrice)}</s>` : ""}</div>
+    <div class="price"><b>${money(p.discountPrice)}</b>${d ? `<s>${money(p.originalPrice)}</s>` : ""}</div>${dtag(p)}
     <button class="btn ghost wide" data-add="${id}"${n <= 0 ? " disabled" : ""}>${n <= 0 ? "Out of stock" : "Add to cart"}</button></div></article>`;
 }
 
@@ -57,17 +65,17 @@ export function add(id, qty = 1) {
   const p = S.products.find(x => x.id === id); if (!p || stockOf(p) <= 0) return false;
   const amount = Math.max(1, Math.floor(Number(qty) || 1)), i = cart.find(x => x.id === id), max = stockOf(p);
   if (i) i.qty = Math.min(i.qty + amount, max); else cart.push({id, qty: Math.min(amount, max)});
-  saveCart(); return true;
+  saveCart(); bumpCart(); return true;
 }
 function drawCart() {
   const rows = cart.map(i => ({i, p: S.products.find(x => x.id === i.id)})).filter(r => r.p);
   if (S.loaded) cart = rows.map(r => r.i);
-  const total = rows.reduce((s, r) => s + Number(r.p.discountPrice || 0) * r.i.qty, 0);
+  const sub = rows.reduce((s, r) => s + Number(r.p.discountPrice || 0) * r.i.qty, 0), fee = deliveryFor(rows.map(r => r.p)), total = sub + fee;
   $("cartRows").innerHTML = rows.map(({i, p}) => `<div class="crow"><span>${esc(p.title)}</span><span>${money(p.discountPrice)} × ${i.qty}</span>
     <button class="sm" type="button" aria-label="Decrease quantity" data-c="minus" data-id="${esc(p.id)}">−</button><button class="sm" type="button" aria-label="Increase quantity" data-c="plus" data-id="${esc(p.id)}">+</button><button class="sm red" type="button" aria-label="Remove item" data-c="del" data-id="${esc(p.id)}">×</button></div>`).join("")
     || `<p class="note">${S.loaded ? "Your cart is empty." : "Loading cart..."}</p>`;
-  $("total").textContent = money(total); saveCart();
-  return {rows, total};
+  $("subtotal").textContent = money(sub); $("delivery").textContent = fee ? money(fee) : "Free"; $("total").textContent = money(total); saveCart();
+  return {rows, total, sub, fee};
 }
 export function openCart() {
   drawCart();
@@ -90,9 +98,9 @@ export function mount(active) {
   const on = k => active === k ? ' class="on"' : "";
   document.body.insertAdjacentHTML("afterbegin", `<header class="top"><a class="brand" href="index.html"><img src="logo.jpg" alt="" width="38" height="38"><span>NEXUS <b>CHOICE</b></span></a>
     <nav aria-label="Main navigation"><a href="index.html"${on("home")}>Shop</a><a href="index.html#about">About</a><a href="account.html"${on("account")}>My profile</a></nav>
-    <div class="head-actions"><button id="cartBtn" class="btn ghost" type="button">Cart <span id="cartCount" class="pill">0</span></button><button id="authBtn" class="btn" type="button">Sign in</button></div></header>`);
-  document.body.insertAdjacentHTML("beforeend", `<div class="modal" id="cartModal" hidden><div class="panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle"><h2 id="cartTitle">Your cart</h2><div id="cartRows"></div><p class="total"><span>Total</span><b id="total">Rs. 0</b></p>
-    <form id="orderForm">${fieldsHTML()}<label>Payment<select name="payment" required><option>Cash on delivery</option><option>Bank transfer</option></select></label>
+    <div class="head-actions"><button id="langBtn" class="icon-btn" type="button" data-nt></button><button id="themeBtn" class="icon-btn" type="button" data-nt></button><button id="cartBtn" class="btn ghost" type="button">Cart <span id="cartCount" class="pill">0</span></button><button id="authBtn" class="btn" type="button">Sign in</button></div></header>`);
+  document.body.insertAdjacentHTML("beforeend", `<div class="modal" id="cartModal" hidden><div class="panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle"><h2 id="cartTitle">Your cart</h2><div id="cartRows"></div><div class="sums"><p><span>Subtotal</span><b id="subtotal">Rs. 0</b></p><p><span>Delivery</span><b id="delivery">Rs. 0</b></p></div><p class="total"><span>Total</span><b id="total">Rs. 0</b></p>
+    <form id="orderForm">${fieldsHTML()}<label>Payment<select name="payment" required><option value="Cash on delivery">Cash on delivery</option><option value="Bank transfer">Bank transfer</option></select></label>
     <label class="chk" id="saveWrap" hidden><input type="checkbox" id="saveP" checked> Save these details to my profile</label>
     <button id="placeBtn" class="btn wide" type="submit">Place order and confirm on WhatsApp</button></form>
     <button id="closeCart" class="btn ghost wide" type="button">Keep shopping</button></div></div>
@@ -144,6 +152,7 @@ export function mount(active) {
     drawCart();
   };
   $("orderForm").onsubmit = placeOrder;
+  initPrefs();
   onAuthStateChanged(auth, async u => {
     S.user = u; S.profile = null;
     $("authBtn").textContent = u ? "Sign out" : "Sign in";
@@ -171,15 +180,15 @@ async function placeOrder(e) {
       if (Number(fresh.discountPrice) !== Number(p.discountPrice)) throw new Error(`The price of ${p.title} has changed. Please refresh and review your cart.`);
       return {i, p, fresh};
     }));
-    const total = latest.reduce((sum, x) => sum + Number(x.fresh.discountPrice || 0) * x.i.qty, 0);
-    const order = {status: "new", createdAt: serverTimestamp(), payment: f.elements.payment.value, subtotal: total, total,
+    const subtotal = latest.reduce((sum, x) => sum + Number(x.fresh.discountPrice || 0) * x.i.qty, 0), delivery = deliveryFor(latest.map(x => x.fresh)), total = subtotal + delivery;
+    const order = {status: "new", createdAt: serverTimestamp(), payment: f.elements.payment.value, subtotal, delivery, total,
       items: latest.map(({i, p, fresh}) => ({id: p.id, sku: fresh.sku || p.sku || "", title: fresh.title || p.title, price: Number(fresh.discountPrice), qty: i.qty})),
       customer: {...c, email: S.user?.email || ""}, ...(S.user ? {uid: S.user.uid} : {})};
     btn.textContent = "Placing order...";
     const ref = await addDoc(collection(db, "orders"), order);
     if (S.user && $("saveP")?.checked) await saveProfile(c).catch(() => {});
     const msg = ["New order - Nexus Choice", `Order ID: ${ref.id}`, ...order.items.map(x => `${x.title} x${x.qty} = ${money(x.price * x.qty)}`),
-      `Total: ${money(total)} (${order.payment})`, `Name: ${c.name}`, `Phone: ${c.phone}`,
+      `Subtotal: ${money(subtotal)}`, `Delivery: ${delivery ? money(delivery) : "Free"}`, `Total: ${money(total)} (${order.payment})`, `Name: ${c.name}`, `Phone: ${c.phone}`,
       `Address: ${c.address}, ${c.city}, ${c.district}`].join("\n");
     cart = []; saveCart();
     location.href = `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;

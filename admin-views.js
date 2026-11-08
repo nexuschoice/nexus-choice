@@ -1,4 +1,5 @@
 import {db, esc, money} from "./firebase.js";
+import {fmtDesc} from "./format.js";
 import {collection, getDocs, addDoc, setDoc, updateDoc, deleteDoc, doc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const ls = async n => (await getDocs(collection(db, n))).docs.map(d => ({id: d.id, ...d.data()}));
@@ -50,29 +51,36 @@ views.products = async m => {
     <label>Original price<input name="originalPrice" type="number" min="0"></label>
     <label>Selling price (final)<input name="discountPrice" type="number" min="0" required></label>
     <label>Stock quantity<input name="stock" type="number" min="0" required value="0"></label>
+    <label>Delivery<select name="deliveryType"><option value="free">Free delivery</option><option value="paid">Paid delivery</option></select></label>
+    <label>Delivery charge (Rs.)<input name="deliveryFee" type="number" min="0" placeholder="e.g. 450" disabled></label>
     <label>Visibility<select name="visibility">${opts(["active", "draft", "inactive"])}</select></label>
     <label class="chk"><input name="featured" type="checkbox"> Featured product</label>
-    <label class="full">Description<textarea name="description" rows="3"></textarea></label>
+    <label class="full">Description<textarea name="description" rows="8" placeholder="Short intro about the product.&#10;&#10;- Water resistant&#10;- 7 day battery&#10;Warranty: 6 months"></textarea></label>
+    <div class="full"><small class="hint">Tip: a blank line starts a new paragraph. Start a line with - for a bullet point. A line like "Warranty: 6 months" shows the label in bold. This is how customers will see it:</small><div id="descPrev" class="desc preview"></div></div>
     <label class="full">Image links, one per line (max 8, https only)<textarea name="images" rows="4" required></textarea></label>
     <div class="full"><button class="btn">Save product</button> <button type="button" class="btn gray" data-a="reset">Clear form</button></div>
   </form>
-  ${tbl(["Image", "Name", "SKU", "Brand", "Price", "Stock", "Visibility", ""], P.map(p => [
+  ${tbl(["Image", "Name", "SKU", "Brand", "Price", "Delivery", "Stock", "Visibility", ""], P.map(p => [
     {h: p.images?.[0] ? `<img src="${esc(p.images[0])}" width="40" height="40" alt="">` : ""},
-    p.title, p.sku, nm(bl, p.brandId), money(p.discountPrice), p.stock, p.visibility,
+    p.title, p.sku, nm(bl, p.brandId), money(p.discountPrice), p.deliveryType === "paid" ? money(p.deliveryFee) : p.deliveryType === "free" ? "Free" : "-", p.stock, p.visibility,
     {h: `<button class="sm" data-a="edit" data-id="${esc(p.id)}">Edit</button> <button class="sm red" data-a="del" data-id="${esc(p.id)}">Delete</button>`}]))}`;
   const f = document.getElementById("pf"), el = f.elements;
+  const syncFee = () => { const paid = el.deliveryType.value === "paid"; el.deliveryFee.disabled = !paid; if (!paid) el.deliveryFee.value = ""; };
+  const prev = () => { document.getElementById("descPrev").innerHTML = fmtDesc(el.description.value) || '<span class="hint">Your description preview appears here.</span>'; };
+  el.deliveryType.addEventListener("change", syncFee); el.description.addEventListener("input", prev); syncFee(); prev();
   m.onclick = async e => {
     const exportBtn = e.target.closest('[data-export="products"]');
-    if (exportBtn) { downloadCSV("nexus-choice-products.csv", ["Product ID","Name","SKU","Brand ID","Category ID","Cost Price","Original Price","Selling Price","Stock","Visibility","Featured","Description"], P.map(x => [x.id,x.title,x.sku,x.brandId,x.categoryId,x.costPrice,x.originalPrice,x.discountPrice,x.stock,x.visibility,x.featured,x.description])); return; }
+    if (exportBtn) { downloadCSV("nexus-choice-products.csv", ["Product ID","Name","SKU","Brand ID","Category ID","Cost Price","Original Price","Selling Price","Stock","Visibility","Featured","Delivery Type","Delivery Fee","Description"], P.map(x => [x.id,x.title,x.sku,x.brandId,x.categoryId,x.costPrice,x.originalPrice,x.discountPrice,x.stock,x.visibility,x.featured,x.deliveryType,x.deliveryFee,x.description])); return; }
     const b = e.target.closest("[data-a]"); if (!b) return;
     const a = b.dataset.a, id = b.dataset.id;
-    if (a === "reset") { f.reset(); el.pid.value = ""; }
+    if (a === "reset") { f.reset(); el.pid.value = ""; syncFee(); prev(); }
     if (a === "edit") {
       const p = P.find(x => x.id === id);
       ["title", "sku", "brandId", "categoryId", "costPrice", "originalPrice", "discountPrice", "description"].forEach(k => el[k].value = p[k] ?? "");
       el.stock.value = p.stock ?? (p.status === "out" ? 0 : 1);
       el.visibility.value = p.visibility || "active";
       el.featured.checked = !!p.featured;
+      el.deliveryType.value = p.deliveryType || "free"; el.deliveryFee.value = p.deliveryFee || ""; syncFee(); prev();
       el.images.value = (p.images || []).join("\n");
       el.pid.value = id; scrollTo(0, 0);
     }
@@ -86,12 +94,14 @@ views.products = async m => {
     const imgs = el.images.value.split("\n").map(s => s.trim()).filter(Boolean).slice(0, 8);
     if (!imgs.length || imgs.some(u => !u.startsWith("https://"))) return alert("Image links must start with https://");
     if (n("discountPrice") < 0 || n("stock") < 0) return alert("Price and stock cannot be negative.");
+    if (el.deliveryType.value === "paid" && !(n("deliveryFee") > 0)) return alert("Enter the delivery charge for paid delivery.");
     const sku = el.sku.value.trim();
     if (P.some(p => p.sku === sku && p.id !== el.pid.value)) return alert("That SKU is already used.");
     const d = {title: el.title.value.trim(), sku, slug: slug(el.title.value), brandId: el.brandId.value, categoryId: el.categoryId.value,
       description: el.description.value.trim(), costPrice: n("costPrice") || null, originalPrice: n("originalPrice") || null,
       discountPrice: n("discountPrice"), stock: Math.floor(n("stock")), visibility: el.visibility.value, featured: el.featured.checked,
-      images: imgs, status: n("stock") > 0 ? "in" : "out"};   // "status" keeps the current storefront working
+      images: imgs, status: n("stock") > 0 ? "in" : "out",
+      deliveryType: el.deliveryType.value, deliveryFee: el.deliveryType.value === "paid" ? Math.round(n("deliveryFee")) : 0};   // "status" keeps the current storefront working
     try {
       if (el.pid.value) await updateDoc(doc(db, "products", el.pid.value), d);
       else await addDoc(collection(db, "products"), {...d, createdAt: serverTimestamp()});
@@ -102,12 +112,15 @@ views.products = async m => {
 
 views.orders = async m => {
   const O = (await ls("orders")).sort(byNew);
-  m.innerHTML = `<div class="view-heading"><h2>Orders</h2><button class="btn ghost" type="button" data-export="orders">Export for Google Sheets ↓</button></div><p class="sheet-hint">Download orders as CSV, then import the file into Google Sheets. This is a manual export, not automatic live sync.</p>${tbl(["Date", "Customer", "Items", "Total", "Payment", "Status"], O.map(o => [
+  m.innerHTML = `<div class="view-heading"><h2>Orders</h2><button class="btn ghost" type="button" data-export="orders">Export for Google Sheets ↓</button></div><p class="sheet-hint">Download orders as CSV, then import the file into Google Sheets. This is a manual export, not automatic live sync.</p>${tbl(["Date", "Customer", "Items", "Delivery", "Total", "Payment", "Status", ""], O.map(o => [
     when(o.createdAt), `${o.customer?.name || ""} ${o.customer?.phone || ""}`,
-    (o.items || []).map(i => `${i.title} x${i.qty || 1}`).join(", "), money(o.total), o.payment,
-    {h: `<select class="status-select" aria-label="Order status" data-id="${esc(o.id)}">${opts(STATUS, o.status)}</select>`}]))}`;
-  m.onclick = e => { const b = e.target.closest('[data-export="orders"]'); if (!b) return;
-    downloadCSV("nexus-choice-orders.csv", ["Order ID","Created At","Customer Name","Phone","Email","Address","City","District","Items","Subtotal","Total","Payment","Status"], O.map(o => [o.id,dateText(o.createdAt),o.customer?.name,o.customer?.phone,o.customer?.email,o.customer?.address,o.customer?.city,o.customer?.district,(o.items||[]).map(i=>`${i.title} x${i.qty||1}`).join(" | "),o.subtotal,o.total,o.payment,o.status]));
+    (o.items || []).map(i => `${i.title} x${i.qty || 1}`).join(", "), o.delivery == null ? "-" : o.delivery ? money(o.delivery) : "Free", money(o.total), o.payment,
+    {h: `<select class="status-select" aria-label="Order status" data-id="${esc(o.id)}">${opts(STATUS, o.status)}</select>`}, {h: window.ME.role === "admin" ? `<button class="sm red" data-del="${esc(o.id)}">Delete</button>` : ""}]))}`;
+  m.onclick = async e => {
+    const d = e.target.closest("[data-del]");
+    if (d) { if (!confirm("Delete this order permanently?")) return; try { await deleteDoc(doc(db, "orders", d.dataset.del)); log("delete order " + d.dataset.del); views.orders(m); } catch (x) { alert(x.message); } return; }
+    const b = e.target.closest('[data-export="orders"]'); if (!b) return;
+    downloadCSV("nexus-choice-orders.csv", ["Order ID","Created At","Customer Name","Phone","Email","Address","City","District","Items","Subtotal","Delivery","Total","Payment","Status"], O.map(o => [o.id,dateText(o.createdAt),o.customer?.name,o.customer?.phone,o.customer?.email,o.customer?.address,o.customer?.city,o.customer?.district,(o.items||[]).map(i=>`${i.title} x${i.qty||1}`).join(" | "),o.subtotal,o.delivery ?? "",o.total,o.payment,o.status]));
   };
   m.onchange = async e => {
     const s = e.target.closest("select[data-id]"); if (!s) return;

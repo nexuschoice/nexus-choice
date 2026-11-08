@@ -16,3 +16,8 @@
 @media(prefers-reduced-motion:reduce){.gate-card,.gate-card img,#main,.cards .card,.loading{animation:none!important;transition:none!important}}
 
 .view-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.view-heading h2{margin-bottom:0!important}.sheet-hint{margin:9px 0 16px;padding:11px 13px;border:1px solid rgba(216,183,122,.2);border-radius:10px;background:rgba(216,183,122,.06);color:var(--muted);font-size:10px!important}.view-heading .btn{font-size:10px;padding:9px 13px}
+
+/* v4: description helper + preview */
+.hint{color:#6b7280;font-size:12px;line-height:1.5;display:block}
+.preview{background:#f9fafb;border:1px dashed #c4cce0;border-radius:8px;padding:12px 14px;margin-top:8px;min-height:48px;font-size:14px}
+.preview p{margin:0 0 .9em;line-height:1.7;white-space:pre-wrap}.preview ul{margin:0 0 .9em;padding-left:1.25em}.preview li{margin:.3em 0}

@@ -5,6 +5,8 @@ let cat = "";
 function draw() {
   const q = $("q").value.trim().toLowerCase();
   const list = S.products.filter(p => (!q || (p.title || "").toLowerCase().includes(q)) && (!cat || p.categoryId === cat));
+  const mode = $("sort").value, price = p => Number(p.discountPrice) || 0, ts = p => p.createdAt?.seconds || 0;
+  if (mode === "low") list.sort((a, b) => price(a) - price(b)); else if (mode === "high") list.sort((a, b) => price(b) - price(a)); else list.sort((a, b) => ts(b) - ts(a));
   $("grid").innerHTML = list.map(card).join("") || `<p class="note">No products found.</p>`;
   const feat = S.products.filter(p => p.featured);
   $("featWrap").hidden = !feat.length || !!q || !!cat;
@@ -20,3 +22,4 @@ $("chips").onclick = e => {
   cat = b.dataset.c; document.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === b)); draw();
 };
 $("q").addEventListener("input", draw);
+$("sort").addEventListener("input", draw);

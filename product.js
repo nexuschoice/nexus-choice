@@ -1,4 +1,5 @@
-import {mount, load, S, stockOf, off, brandName, catName, add, openCart, card, intro} from "./site.js";
+import {mount, load, S, stockOf, off, brandName, catName, add, openCart, card, intro, feeOf, showToast} from "./site.js";
+import {fmtDesc} from "./format.js";
 import {$, esc, money} from "./firebase.js";
 intro();
 mount("");
@@ -22,6 +23,7 @@ else {
     brand: {"@type": "Brand", name: brandName(p.brandId) || "Nexus Choice"},
     offers: {"@type": "Offer", priceCurrency: "LKR", price: p.discountPrice, url: link.href, availability: n > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"}});
   document.head.appendChild(ld);
+  const dtxt = p.deliveryType === "paid" ? `Delivery ${money(feeOf(p))}` : p.deliveryType === "free" ? "Free delivery" : "";
   const row = (k, v) => v ? `<tr><th>${k}</th><td>${esc(v)}</td></tr>` : "";
   box.innerHTML = `<nav class="crumbs"><a href="index.html">Shop</a> / ${catName(p.categoryId) ? `<span>${esc(catName(p.categoryId))}</span> / ` : ""}<span>${esc(p.title)}</span></nav>
   <div class="pd">
@@ -30,10 +32,11 @@ else {
     <div class="info"><small>${esc(brandName(p.brandId))}</small><h1>${esc(p.title)}</h1>
       <div class="price big"><b>${money(p.discountPrice)}</b>${d ? `<s>${money(p.originalPrice)}</s><span class="save">Save ${d}%</span>` : ""}</div>
       <p class="stock ${n > 0 ? "ok" : "no"}">${n <= 0 ? "Out of stock" : n <= 5 ? "Only " + n + " left" : "In stock"}</p>
-      <div class="qty"><button id="qm" class="sm">-</button><input id="qty" type="number" min="1" max="${Math.max(n, 1)}" value="1"><button id="qp" class="sm">+</button></div>
+      ${dtxt ? `<p class="deliv${p.deliveryType === "free" ? " free" : ""}">${dtxt}</p>` : ""}<div class="qty"><button id="qm" class="sm">-</button><input id="qty" type="number" min="1" max="${Math.max(n, 1)}" value="1"><button id="qp" class="sm">+</button></div>
       <div class="acts"><button id="addBtn" class="btn ghost"${n <= 0 ? " disabled" : ""}>Add to cart</button><button id="buyBtn" class="btn"${n <= 0 ? " disabled" : ""}>Buy now</button></div>
-      ${p.description ? `<h2>Description</h2><p class="desc">${esc(p.description)}</p>` : ""}
-      <h2>Details</h2><table class="spec">${row("SKU", p.sku)}${row("Brand", brandName(p.brandId))}${row("Category", catName(p.categoryId))}${row("Availability", n > 0 ? "In stock" : "Out of stock")}</table>
+      <button id="shareBtn" class="share" type="button">Share</button>
+      ${p.description ? `<h2>Description</h2><div class="desc">${fmtDesc(p.description)}</div>` : ""}
+      <h2>Details</h2><table class="spec">${row("SKU", p.sku)}${row("Brand", brandName(p.brandId))}${row("Category", catName(p.categoryId))}${row("Delivery", p.deliveryType === "paid" ? money(feeOf(p)) : p.deliveryType === "free" ? "Free" : "")}${row("Availability", n > 0 ? "In stock" : "Out of stock")}</table>
     </div></div>
   <h2 class="rel-h">You may also like</h2><div class="grid" id="rel"></div>`;
   const qty = () => Math.max(1, Math.min(Number($("qty").value) || 1, Math.max(n, 1)));
@@ -41,6 +44,10 @@ else {
   $("qp").onclick = () => $("qty").value = Math.min(Math.max(n, 1), qty() + 1);
   $("addBtn").onclick = e => { add(p.id, qty()); e.target.textContent = "Added"; setTimeout(() => e.target.textContent = "Add to cart", 900); };
   $("buyBtn").onclick = () => { add(p.id, qty()); openCart(); };
+  $("shareBtn").onclick = async () => {
+    const url = location.href;
+    try { if (navigator.share) await navigator.share({title: p.title, url}); else { await navigator.clipboard.writeText(url); showToast("Link copied", "success"); } } catch {}
+  };
   box.onclick = e => { if (e.target.closest(".thumbs") && e.target.tagName === "IMG") $("big").src = e.target.src; };
   const rel = S.products.filter(x => x.id !== p.id).sort((a, b) => (b.categoryId === p.categoryId) - (a.categoryId === p.categoryId)).slice(0, 4);
   $("rel").innerHTML = rel.map(card).join("");
