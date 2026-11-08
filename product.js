@@ -30,10 +30,12 @@ if (!p) {
     offers: {"@type": "Offer", priceCurrency: "LKR", price: p.discountPrice, url: link.href, availability: n > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"}});
   document.head.appendChild(ld);
   
-  const dtxt = p.deliveryType === "paid" ? `Delivery ${money(feeOf(p))}` : p.deliveryType === "free" ? "Free delivery" : "";
+  // Free Delivery නම් විතරක් ප්‍රොඩක්ට් පේජ් එකේ ලොකුවට සහ කැපී පෙනෙන විදිහට පෙන්වයි
+  const dtxt = p.deliveryType === "free" ? `<div style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-neon); color: var(--accent-neon); padding: 8px 12px; border-radius: 6px; font-weight: 700; margin: 12px 0; display: inline-flex; align-items: center; gap: 6px;">🚚 FREE DELIVERY - මෙම භාණ්ඩය නොමිලේ නිවසටම එවනු ලැබේ!</div>` : "";
+  
   const row = (k, v) => v ? `<tr><th>${k}</th><td>${esc(v)}</td></tr>` : "";
 
-  // Product Video Review HTML Integration
+  // Product Video Review HTML
   let videoHTML = '';
   if (p.videoUrl) {
     videoHTML = `
@@ -53,12 +55,15 @@ if (!p) {
     <div class="info"><small>${esc(brandName(p.brandId))}</small><h1>${esc(p.title)}</h1>
       <div class="price big"><b>${money(p.discountPrice)}</b>${d ? `<s>${money(p.originalPrice)}</s><span class="save">Save ${d}%</span>` : ""}</div>
       <p class="stock ${n > 0 ? "ok" : "no"}">${n <= 0 ? "Out of stock" : n <= 5 ? "Only " + n + " left" : "In stock"}</p>
-      ${dtxt ? `<p class="deliv${p.deliveryType === "free" ? " free" : ""}">${dtxt}</p>` : ""}<div class="qty"><button id="qm" class="sm">-</button><input id="qty" type="number" min="1" max="${Math.max(n, 1)}" value="1"><button id="qp" class="sm">+</button></div>
+      
+      ${dtxt}
+
+      <div class="qty"><button id="qm" class="sm">-</button><input id="qty" type="number" min="1" max="${Math.max(n, 1)}" value="1"><button id="qp" class="sm">+</button></div>
       <div class="acts"><button id="addBtn" class="btn ghost"${n <= 0 ? " disabled" : ""}>Add to cart</button><button id="buyBtn" class="btn"${n <= 0 ? " disabled" : ""}>Buy now</button></div>
       <button id="shareBtn" class="share" type="button">Share</button>
       ${p.description ? `<h2>Description</h2><div class="desc">${fmtDesc(p.description)}</div>` : ""}
       ${videoHTML}
-      <h2>Details</h2><table class="spec">${row("SKU", p.sku)}${row("Brand", brandName(p.brandId))}${row("Category", catName(p.categoryId))}${row("Delivery", p.deliveryType === "paid" ? money(feeOf(p)) : p.deliveryType === "free" ? "Free" : "")}${row("Availability", n > 0 ? "In stock" : "Out of stock")}</table>
+      <h2>Details</h2><table class="spec">${row("SKU", p.sku)}${row("Brand", brandName(p.brandId))}${row("Category", catName(p.categoryId))}${row("Availability", n > 0 ? "In stock" : "Out of stock")}</table>
     </div></div>
   <h2 class="rel-h">You may also like</h2><div class="grid" id="rel"></div>`;
 
