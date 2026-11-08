@@ -1,6 +1,7 @@
 import {mount, load, S, stockOf, off, brandName, catName, add, openCart, card, intro, feeOf, showToast} from "./site.js";
 import {fmtDesc} from "./format.js";
 import {$, esc, money} from "./firebase.js";
+
 intro();
 mount("");
 const box = $("pd"), id = new URLSearchParams(location.search).get("id");
@@ -9,22 +10,42 @@ const meta = (k, v, prop) => {
   if (!m) { m = document.createElement("meta"); m.setAttribute(prop ? "property" : "name", k); document.head.appendChild(m); }
   m.content = v;
 };
+
 try { await load(); } catch (e) { box.innerHTML = `<p class="note">Could not load this product. Please refresh.</p>`; }
+
 const p = S.products.find(x => x.id === id);
-if (!p) { if (S.loaded) box.innerHTML = `<p class="note">This product is not available. <a href="index.html">Back to the shop</a></p>`; }
-else {
+if (!p) { 
+  if (S.loaded) box.innerHTML = `<p class="note">This product is not available. <a href="index.html">Back to the shop</a></p>`; 
+} else {
   const imgs = p.images || [], n = stockOf(p), d = off(p);
   const desc = (p.description || `${p.title} at Nexus Choice`).slice(0, 160);
   document.title = `${p.title} | Nexus Choice`;
   meta("description", desc); meta("og:title", p.title, 1); meta("og:description", desc, 1); meta("og:image", imgs[0] || "", 1);
+  
   const link = document.createElement("link"); link.rel = "canonical"; link.href = location.origin + location.pathname + "?id=" + encodeURIComponent(p.id); document.head.appendChild(link);
+  
   const ld = document.createElement("script"); ld.type = "application/ld+json";
   ld.textContent = JSON.stringify({"@context": "https://schema.org", "@type": "Product", name: p.title, image: imgs, description: desc, sku: p.sku || p.id,
     brand: {"@type": "Brand", name: brandName(p.brandId) || "Nexus Choice"},
     offers: {"@type": "Offer", priceCurrency: "LKR", price: p.discountPrice, url: link.href, availability: n > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"}});
   document.head.appendChild(ld);
+  
   const dtxt = p.deliveryType === "paid" ? `Delivery ${money(feeOf(p))}` : p.deliveryType === "free" ? "Free delivery" : "";
   const row = (k, v) => v ? `<tr><th>${k}</th><td>${esc(v)}</td></tr>` : "";
+
+  // Product Video Review HTML Integration
+  let videoHTML = '';
+  if (p.videoUrl) {
+    videoHTML = `
+      <div style="margin-top: 20px;">
+        <h3 style="color: var(--accent-neon); margin-bottom: 10px; font-size: 16px;">📹 Product Video Review</h3>
+        <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--accent-blue);">
+          <iframe src="${esc(p.videoUrl)}" style="position: absolute; top:0; left:0; width:100%; height:100%; border:0;" allowfullscreen></iframe>
+        </div>
+      </div>
+    `;
+  }
+
   box.innerHTML = `<nav class="crumbs"><a href="index.html">Shop</a> / ${catName(p.categoryId) ? `<span>${esc(catName(p.categoryId))}</span> / ` : ""}<span>${esc(p.title)}</span></nav>
   <div class="pd">
     <div class="gal"><img id="big" src="${esc(imgs[0] || "")}" alt="${esc(p.title)}" width="600" height="600">
@@ -36,9 +57,11 @@ else {
       <div class="acts"><button id="addBtn" class="btn ghost"${n <= 0 ? " disabled" : ""}>Add to cart</button><button id="buyBtn" class="btn"${n <= 0 ? " disabled" : ""}>Buy now</button></div>
       <button id="shareBtn" class="share" type="button">Share</button>
       ${p.description ? `<h2>Description</h2><div class="desc">${fmtDesc(p.description)}</div>` : ""}
+      ${videoHTML}
       <h2>Details</h2><table class="spec">${row("SKU", p.sku)}${row("Brand", brandName(p.brandId))}${row("Category", catName(p.categoryId))}${row("Delivery", p.deliveryType === "paid" ? money(feeOf(p)) : p.deliveryType === "free" ? "Free" : "")}${row("Availability", n > 0 ? "In stock" : "Out of stock")}</table>
     </div></div>
   <h2 class="rel-h">You may also like</h2><div class="grid" id="rel"></div>`;
+
   const qty = () => Math.max(1, Math.min(Number($("qty").value) || 1, Math.max(n, 1)));
   $("qm").onclick = () => $("qty").value = Math.max(1, qty() - 1);
   $("qp").onclick = () => $("qty").value = Math.min(Math.max(n, 1), qty() + 1);
@@ -49,6 +72,8 @@ else {
     try { if (navigator.share) await navigator.share({title: p.title, url}); else { await navigator.clipboard.writeText(url); showToast("Link copied", "success"); } } catch {}
   };
   box.onclick = e => { if (e.target.closest(".thumbs") && e.target.tagName === "IMG") $("big").src = e.target.src; };
+
+  // Related Items Integration
   const rel = S.products.filter(x => x.id !== p.id).sort((a, b) => (b.categoryId === p.categoryId) - (a.categoryId === p.categoryId)).slice(0, 4);
   $("rel").innerHTML = rel.map(card).join("");
 }

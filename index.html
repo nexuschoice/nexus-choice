@@ -28,21 +28,54 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Nexus Choice","url":"https://nexuschoice.github.io/nexus-choice/","logo":"https://i.ibb.co/BKj0gmRL/nexus-logo.png","description":"Smart gadgets, useful everyday essentials and lifestyle finds with island-wide delivery in Sri Lanka.","telephone":"+94768083806","sameAs":["https://facebook.com/NexusChoice","https://www.tiktok.com/@nexus.choice"],"contactPoint":{"@type":"ContactPoint","telephone":"+94768083806","contactType":"customer service","availableLanguage":["English","Sinhala"]}}</script>
 </head>
 <body>
+
+  <!-- Tagline Banner Added Here -->
+  <div class="tagline-banner" style="text-align: center; padding: 10px; background: rgba(0, 240, 255, 0.08); color: var(--accent-neon, #00f0ff); font-size: 14px; font-weight: 600; letter-spacing: 1px; border-bottom: 1px solid rgba(0, 240, 255, 0.15);">
+    ✨ Your Ultimate choice for qulity & style ✨
+  </div>
+
   <main>
     <section class="hero-shell">
       <div class="hero-backdrop" aria-hidden="true"></div>
       <section class="hero wrap">
-        <div class="hero-copy"><span class="eyebrow"><i></i> YOUR EVERYDAY DISCOVERY STORE</span><h1>Good finds.<br><em>Great choices.</em></h1><p>Explore smart gadgets, useful essentials and lifestyle picks — thoughtfully selected for everyday living.</p><div class="hero-actions"><a class="btn" href="#shop">Explore the collection <span aria-hidden="true">↗</span></a><span class="delivery-note">Island-wide delivery in Sri Lanka</span></div></div>
+        <div class="hero-copy">
+          <span class="eyebrow"><i></i> YOUR EVERYDAY DISCOVERY STORE</span>
+          <h1>Good finds.<br><em>Great choices.</em></h1>
+          <p>Explore smart gadgets, useful essentials and lifestyle picks — thoughtfully selected for everyday living.</p>
+          <div class="hero-actions">
+            <a class="btn" href="#shop">Explore the collection <span aria-hidden="true">↗</span></a>
+            <span class="delivery-note">Island-wide delivery in Sri Lanka</span>
+          </div>
+        </div>
         <div class="hero-art"><img src="hero.jpg" alt="A curated selection from Nexus Choice" width="900" height="700"></div>
       </section>
     </section>
-    <section class="trust-strip wrap" aria-label="Shopping benefits"><div><span class="trust-icon">✦</span><span><b>Curated finds</b><small>Useful products, selected</small></span></div><div><span class="trust-icon">⌁</span><span><b>Island-wide delivery</b><small>Across Sri Lanka</small></span></div><div><span class="trust-icon">✓</span><span><b>Easy ordering</b><small>Checkout via WhatsApp</small></span></div></section>
+    
+    <section class="trust-strip wrap" aria-label="Shopping benefits">
+      <div><span class="trust-icon">✦</span><span><b>Curated finds</b><small>Useful products, selected</small></span></div>
+      <div><span class="trust-icon">⌁</span><span><b>Island-wide delivery</b><small>Across Sri Lanka</small></span></div>
+      <div><span class="trust-icon">✓</span><span><b>Easy ordering</b><small>Checkout via WhatsApp</small></span></div>
+    </section>
+
     <section class="wrap shop-section" id="shop">
-      <div class="section-heading"><div><span class="eyebrow">THE COLLECTION</span><h2>Find your next favourite</h2><p>Browse the latest picks from our store.</p></div><label class="search-wrap"><span aria-hidden="true">⌕</span><input id="q" class="search" type="search" placeholder="Search products..." aria-label="Search products"></label><select id="sort" class="sort" aria-label="Sort by"><option value="new">Newest</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></div>
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">THE COLLECTION</span>
+          <h2>Find your next favourite</h2>
+          <p>Browse the latest picks from our store.</p>
+        </div>
+        <label class="search-wrap"><span aria-hidden="true">⌕</span><input id="q" class="search" type="search" placeholder="Search products..." aria-label="Search products"></label>
+        <select id="sort" class="sort" aria-label="Sort by"><option value="new">Newest</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select>
+      </div>
       <div id="chips" class="chips" aria-label="Product categories"></div>
       <section id="featWrap" class="featured-section" hidden><div class="sub-heading"><h3>Featured picks</h3><span>Selected for you</span></div><div id="feat" class="grid"></div></section>
       <div class="sub-heading results-heading"><h3>Shop all products</h3><span>New discoveries await</span></div>
-      <div id="grid" class="grid" aria-live="polite"><div class="skeleton-card"><i></i><span></span><span></span></div><div class="skeleton-card"><i></i><span></span><span></span></div><div class="skeleton-card"><i></i><span></span><span></span></div><div class="skeleton-card"><i></i><span></span><span></span></div></div>
+      <div id="grid" class="grid" aria-live="polite">
+        <div class="skeleton-card"><i></i><span></span><span></span></div>
+        <div class="skeleton-card"><i></i><span></span><span></span></div>
+        <div class="skeleton-card"><i></i><span></span><span></span></div>
+        <div class="skeleton-card"><i></i><span></span><span></span></div>
+      </div>
     </section>
   </main>
   <script type="module" src="home.js"></script>

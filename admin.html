@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="si">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,17 +11,53 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
+  <!-- SheetJS Library for Excel Bulk Upload -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div id="gate"><div class="gate-card"><img src="logo.jpg" alt="Nexus Choice" width="68" height="68"><span class="eyebrow">NEXUS CHOICE</span><h1>Welcome back.</h1><p id="gateMsg">Sign in with your authorized Google account to manage your store.</p><button id="signIn" class="btn">Continue with Google <span aria-hidden="true">↗</span></button></div></div>
+  <div id="gate">
+    <div class="gate-card">
+      <img src="logo.jpg" alt="Nexus Choice" width="68" height="68">
+      <span class="eyebrow">NEXUS CHOICE</span>
+      <h1>Welcome back.</h1>
+      <p id="gateMsg">Sign in with your authorized Google account to manage your store.</p>
+      <button id="signIn" class="btn">Continue with Google <span aria-hidden="true">↗</span></button>
+    </div>
+  </div>
+
   <div id="app" hidden>
     <aside class="sidebar">
-      <a class="brand" href="index.html"><img src="logo.jpg" alt="" width="42" height="42"><span>NEXUS <b>CHOICE</b><small>STORE MANAGEMENT</small></span></a>
-      <div class="side-label">WORKSPACE</div><nav id="nav" aria-label="Admin navigation"></nav>
-      <div class="sidebar-bottom"><span class="online-dot"></span><span>Store workspace</span><div class="who"><span id="who"></span><button id="signOut" class="btn ghost" type="button">Sign out</button></div></div>
+      <a class="brand" href="index.html">
+        <img src="logo.jpg" alt="" width="42" height="42">
+        <span>NEXUS <b>CHOICE</b><small>STORE MANAGEMENT</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav id="nav" aria-label="Admin navigation"></nav>
+      <div class="sidebar-bottom">
+        <span class="online-dot"></span>
+        <span>Store workspace</span>
+        <div class="who">
+          <span id="who"></span>
+          <button id="signOut" class="btn ghost" type="button">Sign out</button>
+        </div>
+      </div>
     </aside>
-    <main class="admin-main"><header class="admin-top"><div><span class="eyebrow">NEXUS CHOICE / ADMIN</span><h1>Store overview</h1></div><a class="btn ghost" href="index.html" target="_blank" rel="noopener">View storefront ↗</a></header><section id="main" aria-live="polite"><p class="loading">Loading workspace...</p></section></main>
+
+    <main class="admin-main">
+      <header class="admin-top">
+        <div>
+          <span class="eyebrow">NEXUS CHOICE / ADMIN</span>
+          <h1>Store overview</h1>
+          <p style="color: var(--accent-neon); font-size: 13px; margin-top: 4px;">✨ Your Ultimate choice for quality & style ✨</p>
+        </div>
+        <a class="btn ghost" href="index.html" target="_blank" rel="noopener">View storefront ↗</a>
+      </header>
+      <section id="main" aria-live="polite">
+        <p class="loading">Loading workspace...</p>
+      </section>
+    </main>
   </div>
+
   <script type="module" src="admin.js"></script>
 </body>
 </html>
