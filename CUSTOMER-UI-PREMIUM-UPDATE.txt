@@ -1,0 +1,20 @@
+NEXUS CHOICE — CUSTOMER UI PREMIUM MODERN UPDATE
+
+Updated:
+- Refined premium navy + champagne-gold visual system.
+- Improved sticky translucent customer navigation.
+- Refined hero, trust strip, product cards, search controls and section spacing.
+- Improved responsive layouts and keyboard focus visibility.
+- Corrected the customer-facing tagline spelling.
+
+Preservation:
+- No JavaScript files were changed.
+- Admin panel files and functionality were left untouched.
+- Firebase configuration, Firestore access, cart, checkout, WhatsApp ordering,
+  product data loading, account/profile and existing integrations were left untouched.
+- Existing product data and asset filenames were retained.
+
+Validation:
+- All 10 JavaScript files passed Node.js syntax checks.
+- This is a front-end presentation update; live deployment and real-device testing
+  should be completed after uploading to GitHub Pages.
