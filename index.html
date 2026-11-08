@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexus Choice | Online Store Sri Lanka</title>
+<meta name="description" content="Nexus Choice: trending smart watches, audio gear, tools and lifestyle gadgets at great prices in Sri Lanka. Order online with island-wide delivery.">
+<link rel="canonical" href="https://nexuschoice.github.io/nexus-choice/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nexus Choice | Online Store Sri Lanka">
+<meta property="og:description" content="Smart watches, audio gear and tools at great prices. Order online across Sri Lanka.">
+<meta property="og:image" content="https://i.ibb.co/BKj0gmRL/nexus-logo.png">
+<meta property="og:url" content="https://nexuschoice.github.io/nexus-choice/">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Nexus Choice","url":"https://nexuschoice.github.io/nexus-choice/","logo":"https://i.ibb.co/BKj0gmRL/nexus-logo.png"}</script>
+</head>
+<body>
+<header>
+  <div class="brand"><img src="https://i.ibb.co/BKj0gmRL/nexus-logo.png" alt="Nexus Choice logo" width="44" height="44"><h1>Nexus Choice</h1></div>
+  <input id="q" class="search" type="search" placeholder="Search products" aria-label="Search products">
+  <button id="cartBtn" class="btn ghost">Cart (<span id="cartCount">0</span>)</button>
+  <button id="authBtn" class="btn">Sign in with Google</button>
+</header>
+<section class="promo"><h2>Smart gadgets, tools and more</h2><p>Island-wide delivery across Sri Lanka. Pay on delivery or by bank transfer.</p></section>
+<main class="wrap">
+  <div class="filters"><select id="fBrand" aria-label="Brand"></select><select id="fCat" aria-label="Category"></select></div>
+  <div id="grid" class="grid"><p class="note">Loading products...</p></div>
+</main>
+
+<div class="modal" id="cartModal" hidden><div class="panel">
+  <h2>Your cart</h2>
+  <div id="cartRows"></div>
+  <p class="total">Total: <b id="total">Rs. 0</b></p>
+  <form id="orderForm">
+    <label>Full name<input id="cName" name="name" required autocomplete="name"></label>
+    <label>Phone (WhatsApp)<input name="phone" type="tel" required placeholder="0771234567" autocomplete="tel"></label>
+    <label>Alternative phone<input name="phone2" type="tel"></label>
+    <label>Address<input name="address" required autocomplete="street-address"></label>
+    <label>City<input name="city" required autocomplete="address-level2"></label>
+    <label>District<select name="district" id="district"></select></label>
+    <label>Payment<select name="payment"><option>Cash on delivery</option><option>Bank transfer</option></select></label>
+    <button id="placeBtn" class="btn wide">Place order and confirm on WhatsApp</button>
+  </form>
+  <button id="closeCart" class="btn ghost wide" type="button">Keep shopping</button>
+</div></div>
+
+<footer>&copy; 2026 Nexus Choice. All rights reserved.</footer>
+<script type="module" src="store.js"></script>
+</body>
+</html>
