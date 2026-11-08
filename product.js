@@ -30,7 +30,7 @@ if (!p) {
     offers: {"@type": "Offer", priceCurrency: "LKR", price: p.discountPrice, url: link.href, availability: n > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"}});
   document.head.appendChild(ld);
   
-  // Free Delivery නම් විතරක් ප්‍රොඩක්ට් පේජ් එකේ ලොකුවට සහ කැපී පෙනෙන විදිහට පෙන්වයි
+  // Free Delivery නම් පමණක් ප්‍රොඩක්ට් පේජ් එකේ ලොකුවට පෙන්වයි. Paid ගැන කිසිවක් පෙන්වන්නේ නැත.
   const dtxt = p.deliveryType === "free" ? `<div style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-neon); color: var(--accent-neon); padding: 8px 12px; border-radius: 6px; font-weight: 700; margin: 12px 0; display: inline-flex; align-items: center; gap: 6px;">🚚 FREE DELIVERY - මෙම භාණ්ඩය නොමිලේ නිවසටම එවනු ලැබේ!</div>` : "";
   
   const row = (k, v) => v ? `<tr><th>${k}</th><td>${esc(v)}</td></tr>` : "";
