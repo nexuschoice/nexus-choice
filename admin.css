@@ -14,3 +14,5 @@
 #main{animation:adminRise .35s ease both}.cards .card{transition:transform .22s,border-color .22s,box-shadow .22s}.cards .card:hover{transform:translateY(-4px);border-color:rgba(216,183,122,.45);box-shadow:0 14px 35px rgba(0,0,0,.2)}#nav button:active,.btn:active,.sm:active{transform:scale(.98)}
 .loading{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:linear-gradient(100deg,#111c2e 20%,#1b2a42 40%,#111c2e 60%);background-size:220% 100%;animation:adminShimmer 1.4s linear infinite}@keyframes adminShimmer{to{background-position-x:-220%}}
 @media(prefers-reduced-motion:reduce){.gate-card,.gate-card img,#main,.cards .card,.loading{animation:none!important;transition:none!important}}
+
+.view-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.view-heading h2{margin-bottom:0!important}.sheet-hint{margin:9px 0 16px;padding:11px 13px;border:1px solid rgba(216,183,122,.2);border-radius:10px;background:rgba(216,183,122,.06);color:var(--muted);font-size:10px!important}.view-heading .btn{font-size:10px;padding:9px 13px}

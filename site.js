@@ -89,14 +89,27 @@ export async function signInUser() {
 export function mount(active) {
   const on = k => active === k ? ' class="on"' : "";
   document.body.insertAdjacentHTML("afterbegin", `<header class="top"><a class="brand" href="index.html"><img src="logo.jpg" alt="" width="38" height="38"><span>NEXUS <b>CHOICE</b></span></a>
-    <nav aria-label="Main navigation"><a href="index.html"${on("home")}>Shop</a><a href="account.html"${on("account")}>My profile</a></nav>
+    <nav aria-label="Main navigation"><a href="index.html"${on("home")}>Shop</a><a href="index.html#about">About</a><a href="account.html"${on("account")}>My profile</a></nav>
     <div class="head-actions"><button id="cartBtn" class="btn ghost" type="button">Cart <span id="cartCount" class="pill">0</span></button><button id="authBtn" class="btn" type="button">Sign in</button></div></header>`);
   document.body.insertAdjacentHTML("beforeend", `<div class="modal" id="cartModal" hidden><div class="panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle"><h2 id="cartTitle">Your cart</h2><div id="cartRows"></div><p class="total"><span>Total</span><b id="total">Rs. 0</b></p>
     <form id="orderForm">${fieldsHTML()}<label>Payment<select name="payment" required><option>Cash on delivery</option><option>Bank transfer</option></select></label>
     <label class="chk" id="saveWrap" hidden><input type="checkbox" id="saveP" checked> Save these details to my profile</label>
     <button id="placeBtn" class="btn wide" type="submit">Place order and confirm on WhatsApp</button></form>
     <button id="closeCart" class="btn ghost wide" type="button">Keep shopping</button></div></div>
-    <footer class="footer"><div class="wrap footer-inner"><a class="brand" href="index.html"><img src="logo.jpg" alt="" width="48" height="48"><span>NEXUS <b>CHOICE</b></span></a><p>Everyday discoveries. Better choices.</p><small>© 2026 Nexus Choice</small></div></footer>`);
+    <section class="about-section" id="about" aria-labelledby="aboutTitle">
+      <div class="wrap about-grid">
+        <div class="about-copy"><span class="eyebrow">ABOUT NEXUS CHOICE</span><h2 id="aboutTitle">Good finds. <em>Great choices.</em></h2>
+          <p>Nexus Choice is an online store bringing together smart gadgets, useful everyday essentials and lifestyle finds. We focus on making it easier to discover practical products and place orders from anywhere in Sri Lanka.</p>
+          <p class="about-note">Have a question about a product or an order? Contact our team through any of the channels below.</p>
+        </div>
+        <div class="contact-panel"><h3>Connect with us</h3>
+          <a class="social-link whatsapp" href="https://wa.me/94768083806" target="_blank" rel="noopener noreferrer"><span class="social-icon">✆</span><span><b>WhatsApp Chat</b><small>+94 76 808 3806</small></span><i>↗</i></a>
+          <a class="social-link" href="https://facebook.com/NexusChoice" target="_blank" rel="noopener noreferrer"><span class="social-icon">f</span><span><b>Facebook Page</b><small>facebook.com/NexusChoice</small></span><i>↗</i></a>
+          <a class="social-link" href="https://www.tiktok.com/@nexus.choice" target="_blank" rel="noopener noreferrer"><span class="social-icon">♪</span><span><b>TikTok</b><small>@nexus.choice</small></span><i>↗</i></a>
+        </div>
+      </div>
+    </section>
+    <footer class="footer"><div class="wrap footer-inner"><a class="brand" href="index.html"><img src="logo.jpg" alt="" width="48" height="48"><span>NEXUS <b>CHOICE</b></span></a><p>Everyday discoveries. Better choices.</p><div class="footer-links"><a href="https://wa.me/94768083806" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="https://facebook.com/NexusChoice" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://www.tiktok.com/@nexus.choice" target="_blank" rel="noopener noreferrer">TikTok</a></div><small>© 2026 Nexus Choice</small></div></footer>`);
   saveCart();
   document.body.classList.add("page-enter");
   // Slim reading-progress indicator and a back-to-top control.

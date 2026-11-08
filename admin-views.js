@@ -13,6 +13,16 @@ const tbl = (h, r) => `<div class="tw"><table><tr>${h.map(x => `<th>${x}</th>`).
 const card = (t, v) => `<div class="card"><small>${t}</small><b>${esc(v)}</b></div>`;
 const when = t => t && t.toDate ? t.toDate().toLocaleString() : "";
 const byNew = (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+
+const csvCell = value => `"${String(value ?? "").replace(/"/g, '""')}"`;
+const downloadCSV = (filename, headers, rows) => {
+  const csv = [headers, ...rows].map(row => row.map(csvCell).join(",")).join("\r\n");
+  const blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+const dateText = t => t?.toDate ? t.toDate().toISOString() : "";
 export const views = {};
 
 views.dashboard = async m => {
@@ -30,7 +40,7 @@ views.dashboard = async m => {
 views.products = async m => {
   const [P, B, C] = await Promise.all([ls("products"), safe("brands"), safe("categories")]);
   const bl = B || [], cl = C || [], nm = (a, id) => a.find(x => x.id === id)?.name || "";
-  m.innerHTML = `<h2>Products</h2>
+  m.innerHTML = `<div class="view-heading"><h2>Products</h2><button class="btn ghost" type="button" data-export="products">Export for Google Sheets ↓</button></div><p class="sheet-hint">Download a spreadsheet-ready CSV of your product catalogue.</p>
   <form id="pf" class="grid"><input type="hidden" name="pid">
     <label>Product name<input name="title" required></label>
     <label>SKU<input name="sku" required></label>
@@ -52,6 +62,8 @@ views.products = async m => {
     {h: `<button class="sm" data-a="edit" data-id="${esc(p.id)}">Edit</button> <button class="sm red" data-a="del" data-id="${esc(p.id)}">Delete</button>`}]))}`;
   const f = document.getElementById("pf"), el = f.elements;
   m.onclick = async e => {
+    const exportBtn = e.target.closest('[data-export="products"]');
+    if (exportBtn) { downloadCSV("nexus-choice-products.csv", ["Product ID","Name","SKU","Brand ID","Category ID","Cost Price","Original Price","Selling Price","Stock","Visibility","Featured","Description"], P.map(x => [x.id,x.title,x.sku,x.brandId,x.categoryId,x.costPrice,x.originalPrice,x.discountPrice,x.stock,x.visibility,x.featured,x.description])); return; }
     const b = e.target.closest("[data-a]"); if (!b) return;
     const a = b.dataset.a, id = b.dataset.id;
     if (a === "reset") { f.reset(); el.pid.value = ""; }
@@ -90,10 +102,13 @@ views.products = async m => {
 
 views.orders = async m => {
   const O = (await ls("orders")).sort(byNew);
-  m.innerHTML = `<h2>Orders</h2>${tbl(["Date", "Customer", "Items", "Total", "Payment", "Status"], O.map(o => [
+  m.innerHTML = `<div class="view-heading"><h2>Orders</h2><button class="btn ghost" type="button" data-export="orders">Export for Google Sheets ↓</button></div><p class="sheet-hint">Download orders as CSV, then import the file into Google Sheets. This is a manual export, not automatic live sync.</p>${tbl(["Date", "Customer", "Items", "Total", "Payment", "Status"], O.map(o => [
     when(o.createdAt), `${o.customer?.name || ""} ${o.customer?.phone || ""}`,
     (o.items || []).map(i => `${i.title} x${i.qty || 1}`).join(", "), money(o.total), o.payment,
     {h: `<select class="status-select" aria-label="Order status" data-id="${esc(o.id)}">${opts(STATUS, o.status)}</select>`}]))}`;
+  m.onclick = e => { const b = e.target.closest('[data-export="orders"]'); if (!b) return;
+    downloadCSV("nexus-choice-orders.csv", ["Order ID","Created At","Customer Name","Phone","Email","Address","City","District","Items","Subtotal","Total","Payment","Status"], O.map(o => [o.id,dateText(o.createdAt),o.customer?.name,o.customer?.phone,o.customer?.email,o.customer?.address,o.customer?.city,o.customer?.district,(o.items||[]).map(i=>`${i.title} x${i.qty||1}`).join(" | "),o.subtotal,o.total,o.payment,o.status]));
+  };
   m.onchange = async e => {
     const s = e.target.closest("select[data-id]"); if (!s) return;
     try { await updateDoc(doc(db, "orders", s.dataset.id), {status: s.value}); log("order " + s.dataset.id + " -> " + s.value); } catch (x) { alert(x.message); }
