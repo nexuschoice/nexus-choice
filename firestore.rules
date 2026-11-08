@@ -24,7 +24,10 @@ service cloud.firestore {
                         || (request.auth != null && request.resource.data.uid == request.auth.uid));
       allow read: if can(['order_manager','support'])
                   || (request.auth != null && resource.data.get('uid', '') == request.auth.uid);
-      allow update: if can(['order_manager','support']);
+      // Staff may change an order's status only; customer, item and price snapshots stay protected.
+      allow update: if can(['order_manager','support'])
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+                    && request.resource.data.status in ['new','confirmed','processing','ready','shipped','delivered','cancelled','return_requested','refunded'];
       allow delete: if can([]);
     }
     match /customers/{uid} {

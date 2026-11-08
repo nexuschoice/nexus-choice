@@ -21,6 +21,7 @@ onAuthStateChanged(auth, async u => {
   const email = (u.email || "").toLowerCase();
   let role = email === OWNER ? "admin" : null;
   if (!role) { try { const s = await getDoc(doc(db, "staff", email)); if (s.exists()) role = s.data().role; } catch (e) {} }
+  if (email !== OWNER && role === "admin") role = null; // only the configured owner receives administrator privileges
   if (!role || !u.emailVerified) { $("gateMsg").textContent = "No access for " + email + ". Ask the owner to add you under Staff."; return signOut(auth); }
   window.ME = {email, role};
   $("who").textContent = email + " (" + role + ")";

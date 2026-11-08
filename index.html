@@ -1,50 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nexus Choice | Online Store Sri Lanka</title>
-<meta name="description" content="Nexus Choice: trending smart watches, audio gear, tools and lifestyle gadgets at great prices in Sri Lanka. Order online with island-wide delivery.">
-<link rel="canonical" href="https://nexuschoice.github.io/nexus-choice/">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Nexus Choice | Online Store Sri Lanka">
-<meta property="og:description" content="Smart watches, audio gear and tools at great prices. Order online across Sri Lanka.">
-<meta property="og:image" content="https://i.ibb.co/BKj0gmRL/nexus-logo.png">
-<meta property="og:url" content="https://nexuschoice.github.io/nexus-choice/">
-<link rel="stylesheet" href="style.css">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Nexus Choice","url":"https://nexuschoice.github.io/nexus-choice/","logo":"https://i.ibb.co/BKj0gmRL/nexus-logo.png"}</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a2c">
+  <title>Nexus Choice | Discover Your Next Favourite</title>
+  <meta name="description" content="Discover smart gadgets, everyday essentials and lifestyle finds at Nexus Choice. Island-wide delivery across Sri Lanka.">
+  <link rel="canonical" href="https://nexuschoice.github.io/nexus-choice/">
+  <link rel="icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Nexus Choice | Discover Your Next Favourite">
+  <meta property="og:description" content="Smart gadgets, everyday essentials and lifestyle finds. Island-wide delivery across Sri Lanka.">
+  <meta property="og:image" content="https://i.ibb.co/BKj0gmRL/nexus-logo.png">
+  <meta property="og:url" content="https://nexuschoice.github.io/nexus-choice/">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Nexus Choice","url":"https://nexuschoice.github.io/nexus-choice/","logo":"https://i.ibb.co/BKj0gmRL/nexus-logo.png"}</script>
 </head>
 <body>
-<header>
-  <div class="brand"><img src="https://i.ibb.co/BKj0gmRL/nexus-logo.png" alt="Nexus Choice logo" width="44" height="44"><h1>Nexus Choice</h1></div>
-  <input id="q" class="search" type="search" placeholder="Search products" aria-label="Search products">
-  <button id="cartBtn" class="btn ghost">Cart (<span id="cartCount">0</span>)</button>
-  <button id="authBtn" class="btn">Sign in with Google</button>
-</header>
-<section class="promo"><h2>Smart gadgets, tools and more</h2><p>Island-wide delivery across Sri Lanka. Pay on delivery or by bank transfer.</p></section>
-<main class="wrap">
-  <div class="filters"><select id="fBrand" aria-label="Brand"></select><select id="fCat" aria-label="Category"></select></div>
-  <div id="grid" class="grid"><p class="note">Loading products...</p></div>
-</main>
-
-<div class="modal" id="cartModal" hidden><div class="panel">
-  <h2>Your cart</h2>
-  <div id="cartRows"></div>
-  <p class="total">Total: <b id="total">Rs. 0</b></p>
-  <form id="orderForm">
-    <label>Full name<input id="cName" name="name" required autocomplete="name"></label>
-    <label>Phone (WhatsApp)<input name="phone" type="tel" required placeholder="0771234567" autocomplete="tel"></label>
-    <label>Alternative phone<input name="phone2" type="tel"></label>
-    <label>Address<input name="address" required autocomplete="street-address"></label>
-    <label>City<input name="city" required autocomplete="address-level2"></label>
-    <label>District<select name="district" id="district"></select></label>
-    <label>Payment<select name="payment"><option>Cash on delivery</option><option>Bank transfer</option></select></label>
-    <button id="placeBtn" class="btn wide">Place order and confirm on WhatsApp</button>
-  </form>
-  <button id="closeCart" class="btn ghost wide" type="button">Keep shopping</button>
-</div></div>
-
-<footer>&copy; 2026 Nexus Choice. All rights reserved.</footer>
-<script type="module" src="store.js"></script>
+  <main>
+    <section class="hero-shell">
+      <div class="hero-backdrop" aria-hidden="true"></div>
+      <section class="hero wrap">
+        <div class="hero-copy"><span class="eyebrow"><i></i> YOUR EVERYDAY DISCOVERY STORE</span><h1>Good finds.<br><em>Great choices.</em></h1><p>Explore smart gadgets, useful essentials and lifestyle picks — thoughtfully selected for everyday living.</p><div class="hero-actions"><a class="btn" href="#shop">Explore the collection <span aria-hidden="true">↗</span></a><span class="delivery-note">Island-wide delivery in Sri Lanka</span></div></div>
+        <div class="hero-art"><img src="hero.jpg" alt="A curated selection from Nexus Choice" width="900" height="700"></div>
+      </section>
+    </section>
+    <section class="trust-strip wrap" aria-label="Shopping benefits"><div><span class="trust-icon">✦</span><span><b>Curated finds</b><small>Useful products, selected</small></span></div><div><span class="trust-icon">⌁</span><span><b>Island-wide delivery</b><small>Across Sri Lanka</small></span></div><div><span class="trust-icon">✓</span><span><b>Easy ordering</b><small>Checkout via WhatsApp</small></span></div></section>
+    <section class="wrap shop-section" id="shop">
+      <div class="section-heading"><div><span class="eyebrow">THE COLLECTION</span><h2>Find your next favourite</h2><p>Browse the latest picks from our store.</p></div><label class="search-wrap"><span aria-hidden="true">⌕</span><input id="q" class="search" type="search" placeholder="Search products..." aria-label="Search products"></label></div>
+      <div id="chips" class="chips" aria-label="Product categories"></div>
+      <section id="featWrap" class="featured-section" hidden><div class="sub-heading"><h3>Featured picks</h3><span>Selected for you</span></div><div id="feat" class="grid"></div></section>
+      <div class="sub-heading results-heading"><h3>Shop all products</h3><span>New discoveries await</span></div>
+      <div id="grid" class="grid"><p class="note">Loading products...</p></div>
+    </section>
+  </main>
+  <script type="module" src="home.js"></script>
 </body>
 </html>

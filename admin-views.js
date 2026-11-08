@@ -6,7 +6,7 @@ const safe = n => ls(n).catch(() => null);          // null = this role may not 
 const log = a => addDoc(collection(db, "logs"), {by: window.ME.email, action: a, at: serverTimestamp()}).catch(() => {});
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const STATUS = ["new", "confirmed", "processing", "ready", "shipped", "delivered", "cancelled", "return_requested", "refunded"];
-const ROLES = ["admin", "order_manager", "product_manager", "inventory_manager", "support"];
+const ROLES = ["order_manager", "product_manager", "inventory_manager", "support"];
 const opts = (arr, sel, f = x => [x, x]) => arr.map(x => { const [v, t] = f(x); return `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(t)}</option>`; }).join("");
 const cell = x => x && x.h !== undefined ? x.h : esc(x);   // {h: html} = trusted markup
 const tbl = (h, r) => `<div class="tw"><table><tr>${h.map(x => `<th>${x}</th>`).join("")}</tr>${r.map(c => `<tr>${c.map(x => `<td>${cell(x)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${h.length}">Nothing here yet.</td></tr>`}</table></div>`;
@@ -93,7 +93,7 @@ views.orders = async m => {
   m.innerHTML = `<h2>Orders</h2>${tbl(["Date", "Customer", "Items", "Total", "Payment", "Status"], O.map(o => [
     when(o.createdAt), `${o.customer?.name || ""} ${o.customer?.phone || ""}`,
     (o.items || []).map(i => `${i.title} x${i.qty || 1}`).join(", "), money(o.total), o.payment,
-    {h: `<select data-id="${esc(o.id)}">${opts(STATUS, o.status)}</select>`}]))}`;
+    {h: `<select class="status-select" aria-label="Order status" data-id="${esc(o.id)}">${opts(STATUS, o.status)}</select>`}]))}`;
   m.onchange = async e => {
     const s = e.target.closest("select[data-id]"); if (!s) return;
     try { await updateDoc(doc(db, "orders", s.dataset.id), {status: s.value}); log("order " + s.dataset.id + " -> " + s.value); } catch (x) { alert(x.message); }
