@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function ok()   { return request.auth != null && request.auth.token.email_verified == true; }
+    function mail() { return request.auth.token.email; }
+    function role() {
+      return mail() == 'nisalsasindu2007@gmail.com' ? 'admin'
+        : (exists(/databases/$(db)/documents/staff/$(mail()))
+            ? get(/databases/$(db)/documents/staff/$(mail())).data.role : 'none');
+    }
+    // can([]) = admin only; can(['x']) = admin or role x
+    function can(list) { return ok() && (role() == 'admin' || role() in list); }
+
+    match /products/{id}   { allow read: if true; allow write: if can(['product_manager','inventory_manager']); }
+    match /brands/{id}     { allow read: if true; allow write: if can([]); }
+    match /categories/{id} { allow read: if true; allow write: if can([]); }
+
+    match /orders/{id} {
+      allow create: if request.resource.data.status == 'new'
+                    && request.resource.data.items.size() > 0
+                    && request.resource.data.items.size() <= 30;
+      allow read, update: if can(['order_manager','support']);
+      allow delete: if can([]);
+    }
+    match /staff/{email} {
+      allow read: if ok() && (mail() == email || can([]));
+      allow write: if can([]);
+    }
+    match /logs/{id} {
+      allow create: if can(['order_manager','product_manager','inventory_manager','support']);
+      allow read: if can([]);
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
