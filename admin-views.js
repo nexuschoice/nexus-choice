@@ -95,8 +95,7 @@ views.products = async m => {
         const price = Number(get(r,"discountPrice","sellingPrice","price"));
         const stock = Number(get(r,"stock","quantity","stockquantity"));
         let imagesRaw = get(r,"images","imageUrls","image");
-        let images = Array.isArray(imagesRaw) ? imagesRaw : norm(imagesRaw).split(/[|;
-]/).map(x=>x.trim()).filter(Boolean);
+        let images = Array.isArray(imagesRaw) ? imagesRaw : norm(imagesRaw).split(/[|;\r\n]+/).map(x=>x.trim()).filter(Boolean);
         for (let n=1;n<=8;n++) { const v=norm(get(r,`img${n}`,`image${n}`)); if(v) images.push(v); }
         images = [...new Set(images)].slice(0,8);
         if (!title || !sku || !Number.isFinite(price) || price < 0 || !Number.isFinite(stock) || stock < 0 || !images.length || images.some(u=>!/^https:\/\//i.test(u))) throw new Error(`Row ${idx+2}: check title, sku, discountPrice, stock and HTTPS image link(s).`);
