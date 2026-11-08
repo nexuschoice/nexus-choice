@@ -21,3 +21,8 @@
 .hint{color:#6b7280;font-size:12px;line-height:1.5;display:block}
 .preview{background:#f9fafb;border:1px dashed #c4cce0;border-radius:8px;padding:12px 14px;margin-top:8px;min-height:48px;font-size:14px}
 .preview p{margin:0 0 .9em;line-height:1.7;white-space:pre-wrap}.preview ul{margin:0 0 .9em;padding-left:1.25em}.preview li{margin:.3em 0}
+
+.bulk-import{display:grid;gap:8px;margin:14px 0 18px;padding:14px;border:1px dashed rgba(216,183,122,.35);border-radius:12px;background:rgba(216,183,122,.045)}
+.bulk-import label{font-size:12px;font-weight:700;color:var(--text)}
+.bulk-import input[type=file]{max-width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text)}
+.bulk-import .hint{line-height:1.6}

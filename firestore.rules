@@ -17,9 +17,42 @@ service cloud.firestore {
     match /categories/{id} { allow read: if true; allow write: if can([]); }
 
     match /orders/{id} {
-      allow create: if request.resource.data.status == 'new'
+      // Public checkout is supported, but only a small, validated order document is accepted.
+      // Product prices and stock must also be re-validated by a trusted backend for strict inventory guarantees.
+      allow create: if request.resource.data.keys().hasOnly(['status','createdAt','payment','subtotal','delivery','total','items','customer','uid'])
+                    && request.resource.data.status == 'new'
+                    && request.resource.data.createdAt is timestamp
+                    && request.resource.data.payment in ['Cash on delivery','Bank transfer']
+                    && request.resource.data.subtotal is number
+                    && request.resource.data.delivery is number
+                    && request.resource.data.total is number
+                    && request.resource.data.subtotal > 0
+                    && request.resource.data.delivery >= 0
+                    && request.resource.data.total == request.resource.data.subtotal + request.resource.data.delivery
+                    && request.resource.data.items is list
                     && request.resource.data.items.size() > 0
                     && request.resource.data.items.size() <= 30
+                    && request.resource.data.items[0].keys().hasOnly(['id','sku','title','price','qty'])
+                    && request.resource.data.items[0].id is string
+                    && request.resource.data.items[0].title is string
+                    && request.resource.data.items[0].price is number
+                    && request.resource.data.items[0].price > 0
+                    && request.resource.data.items[0].qty is int
+                    && request.resource.data.items[0].qty > 0
+                    && request.resource.data.customer is map
+                    && request.resource.data.customer.keys().hasOnly(['name','phone','phone2','address','city','district','email'])
+                    && request.resource.data.customer.name is string
+                    && request.resource.data.customer.name.size() > 0
+                    && request.resource.data.customer.phone is string
+                    && request.resource.data.customer.phone.matches('^0[0-9]{9}$')
+                    && request.resource.data.customer.phone2 is string
+                    && (request.resource.data.customer.phone2 == '' || request.resource.data.customer.phone2.matches('^0[0-9]{9}$'))
+                    && request.resource.data.customer.address is string
+                    && request.resource.data.customer.address.size() > 0
+                    && request.resource.data.customer.city is string
+                    && request.resource.data.customer.city.size() > 0
+                    && request.resource.data.customer.district is string
+                    && request.resource.data.customer.district.size() > 0
                     && (!('uid' in request.resource.data)
                         || (request.auth != null && request.resource.data.uid == request.auth.uid));
       allow read: if can(['order_manager','support'])

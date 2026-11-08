@@ -6,7 +6,17 @@ import {initPrefs} from "./ui.js";
 export const WA = "94768083806"; // Business WhatsApp number; update here if it changes.
 export const DISTRICTS = ["Ampara","Anuradhapura","Badulla","Batticaloa","Colombo","Galle","Gampaha","Hambantota","Jaffna","Kalutara","Kandy","Kegalle","Kilinochchi","Kurunegala","Mannar","Matale","Matara","Monaragala","Mullaitivu","Nuwara Eliya","Polonnaruwa","Puttalam","Ratnapura","Trincomalee","Vavuniya"];
 export const S = {products: [], brands: [], cats: [], user: null, profile: null, loaded: false};
-export const stockOf = p => Math.max(0, Number(p.stock ?? (p.status === "out" ? 0 : 99)) || 0);
+export const stockOf = p => {
+  if (p?.stock === undefined || p?.stock === null || p?.stock === "") return p?.status === "out" ? 0 : 99;
+  const n = Number(p.stock);
+  return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+};
+export const safeImageUrl = value => {
+  try {
+    const url = new URL(String(value || ""), location.origin);
+    return ["https:", "http:"].includes(url.protocol) ? url.href : "";
+  } catch { return ""; }
+};
 export const off = p => Number(p.originalPrice) > Number(p.discountPrice) && Number(p.originalPrice) > 0 ? Math.round(100 * (1 - Number(p.discountPrice) / Number(p.originalPrice))) : 0;
 export const brandName = id => S.brands.find(b => b.id === id)?.name || "";
 export const catName = id => S.cats.find(c => c.id === id)?.name || "";
@@ -43,8 +53,8 @@ export async function saveProfile(d) {
 }
 
 export function card(p) {
-  const n = stockOf(p), d = off(p), id = esc(p.id), image = esc((p.images || [])[0] || "");
-  return `<article class="card"><a class="pic" href="product.html?id=${encodeURIComponent(p.id)}"><img src="${image}" alt="${esc(p.title)}" width="320" height="320" loading="lazy" decoding="async">
+  const n = stockOf(p), d = off(p), id = esc(p.id), image = esc(safeImageUrl(Array.isArray(p.images) ? p.images[0] : "") || "favicon.png");
+  return `<article class="card"><a class="pic" href="product.html?id=${encodeURIComponent(p.id)}"><img src="${image}" data-fallback="favicon.png" alt="${esc(p.title)}" width="320" height="320" loading="lazy" decoding="async">
     ${d ? `<span class="badge">-${d}%</span>` : ""}${n <= 0 ? `<span class="badge out">Sold out</span>` : ""}</a>
     <div class="body"><small>${esc(brandName(p.brandId))}</small><h3><a href="product.html?id=${encodeURIComponent(p.id)}">${esc(p.title)}</a></h3>
     <div class="price"><b>${money(p.discountPrice)}</b>${d ? `<s>${money(p.originalPrice)}</s>` : ""}</div>${dtag(p)}
@@ -55,7 +65,7 @@ let cart = [];
 try { const parsed = JSON.parse(localStorage.getItem("nc_cart") || "[]"); cart = Array.isArray(parsed) ? parsed : []; } catch { cart = []; }
 function cleanCart() {
   if (!S.loaded) return;
-  cart = cart.filter(i => i && typeof i.id === "string" && Number.isInteger(Number(i.qty)) && Number(i.qty) > 0)
+  cart = cart.filter(i => i && typeof i.id === "string" && Number.isSafeInteger(Number(i.qty)) && Number(i.qty) > 0)
     .map(i => ({id: i.id, qty: Math.max(1, Math.min(Number(i.qty), stockOf(S.products.find(p => p.id === i.id) || {stock: 0})))}))
     .filter(i => S.products.some(p => p.id === i.id && stockOf(p) > 0));
 }
@@ -119,6 +129,12 @@ export function mount(active) {
     </section>
     <footer class="footer"><div class="wrap footer-inner"><a class="brand" href="index.html"><img src="logo.jpg" alt="" width="48" height="48"><span>NEXUS <b>CHOICE</b></span></a><p>Everyday discoveries. Better choices.</p><div class="footer-links"><a href="https://wa.me/94768083806" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="https://facebook.com/NexusChoice" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://www.tiktok.com/@nexus.choice" target="_blank" rel="noopener noreferrer">TikTok</a></div><small>© 2026 Nexus Choice</small></div></footer>`);
   saveCart();
+  document.addEventListener("error", e => {
+    const img = e.target;
+    if (img instanceof HTMLImageElement && img.dataset.fallback && img.src !== new URL(img.dataset.fallback, location.href).href) {
+      img.src = img.dataset.fallback;
+    }
+  }, true);
   document.body.classList.add("page-enter");
   // Slim reading-progress indicator and a back-to-top control.
   if (!$("readingProgress")) document.body.insertAdjacentHTML("afterbegin", '<div id="readingProgress" aria-hidden="true"><i></i></div>');
@@ -135,7 +151,10 @@ export function mount(active) {
   $("closeCart").onclick = () => $("cartModal").hidden = true;
   $("cartModal").onclick = e => { if (e.target.id === "cartModal") $("cartModal").hidden = true; };
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("cartModal").hidden) $("cartModal").hidden = true; });
-  $("authBtn").onclick = () => S.user ? signOut(auth) : signInUser();
+  $("authBtn").onclick = async () => {
+    try { if (S.user) await signOut(auth); else await signInUser(); }
+    catch { showToast("Could not complete sign out. Please try again.", "error"); }
+  };
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-add]"); if (!b) return;
     if (!add(b.dataset.add)) return;
@@ -166,9 +185,11 @@ async function placeOrder(e) {
   const {rows} = drawCart();
   if (!rows.length) return alert("Your cart is empty.");
   const f = e.target, c = readForm(f); c.phone = c.phone.replace(/[\s()-]/g, ""); c.phone2 = c.phone2.replace(/[\s()-]/g, "");
+  if (!c.name || !c.address || !c.city || !c.district) return alert("Please complete all required delivery details.");
   if (!/^0\d{9}$/.test(c.phone)) return alert("Enter a valid Sri Lankan phone number, like 0771234567.");
   if (c.phone2 && !/^0\d{9}$/.test(c.phone2)) return alert("Check the alternative phone number.");
-  const btn = $("placeBtn"); btn.disabled = true; btn.textContent = "Checking stock...";
+  if (!["Cash on delivery", "Bank transfer"].includes(f.elements.payment.value)) return alert("Please choose a valid payment method.");
+  const btn = $("placeBtn"); if (btn.disabled) return; btn.disabled = true; btn.textContent = "Checking stock...";
   try {
     // Re-check live stock and prices before accepting an order. This is a client-side safeguard;
     // production-grade inventory reservation should additionally be implemented in a trusted backend.
@@ -177,10 +198,12 @@ async function placeOrder(e) {
       if (!snap.exists()) throw new Error(`${p.title} is no longer available.`);
       const fresh = snap.data(), freshStock = stockOf(fresh);
       if ((fresh.visibility || "active") !== "active" || freshStock < i.qty) throw new Error(`Stock changed for ${p.title}. Please update your cart.`);
+      if (!Number.isFinite(Number(fresh.discountPrice)) || Number(fresh.discountPrice) <= 0) throw new Error(`The price for ${p.title} is invalid. Please contact the store.`);
       if (Number(fresh.discountPrice) !== Number(p.discountPrice)) throw new Error(`The price of ${p.title} has changed. Please refresh and review your cart.`);
       return {i, p, fresh};
     }));
     const subtotal = latest.reduce((sum, x) => sum + Number(x.fresh.discountPrice || 0) * x.i.qty, 0), delivery = deliveryFor(latest.map(x => x.fresh)), total = subtotal + delivery;
+    if (!Number.isFinite(subtotal) || !Number.isFinite(delivery) || !Number.isFinite(total) || total <= 0) throw new Error("The order total is invalid. Please refresh and try again.");
     const order = {status: "new", createdAt: serverTimestamp(), payment: f.elements.payment.value, subtotal, delivery, total,
       items: latest.map(({i, p, fresh}) => ({id: p.id, sku: fresh.sku || p.sku || "", title: fresh.title || p.title, price: Number(fresh.discountPrice), qty: i.qty})),
       customer: {...c, email: S.user?.email || ""}, ...(S.user ? {uid: S.user.uid} : {})};
