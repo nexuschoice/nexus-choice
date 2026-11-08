@@ -1,5 +1,6 @@
-import {mount, S, fieldsHTML, fillForm, readForm, saveProfile, signInUser} from "./site.js";
+import {mount, S, fieldsHTML, fillForm, readForm, saveProfile, signInUser, intro} from "./site.js";
 import {$, esc} from "./firebase.js";
+intro();
 mount("account");
 function render() {
   const box = $("acc");

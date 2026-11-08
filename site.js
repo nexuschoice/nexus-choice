@@ -98,6 +98,18 @@ export function mount(active) {
     <button id="closeCart" class="btn ghost wide" type="button">Keep shopping</button></div></div>
     <footer class="footer"><div class="wrap footer-inner"><a class="brand" href="index.html"><img src="logo.jpg" alt="" width="48" height="48"><span>NEXUS <b>CHOICE</b></span></a><p>Everyday discoveries. Better choices.</p><small>© 2026 Nexus Choice</small></div></footer>`);
   saveCart();
+  document.body.classList.add("page-enter");
+  // Slim reading-progress indicator and a back-to-top control.
+  if (!$("readingProgress")) document.body.insertAdjacentHTML("afterbegin", '<div id="readingProgress" aria-hidden="true"><i></i></div>');
+  if (!$("backTop")) document.body.insertAdjacentHTML("beforeend", '<button id="backTop" type="button" aria-label="Back to top" title="Back to top">↑</button>');
+  const progress = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const value = max > 0 ? (window.scrollY / max) * 100 : 0;
+    const bar = $("readingProgress"); if (bar) bar.firstElementChild.style.width = `${value}%`;
+    const top = $("backTop"); if (top) top.classList.toggle("visible", window.scrollY > 420);
+  };
+  window.addEventListener("scroll", progress, {passive:true}); progress();
+  $("backTop").onclick = () => window.scrollTo({top:0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
   $("cartBtn").onclick = openCart;
   $("closeCart").onclick = () => $("cartModal").hidden = true;
   $("cartModal").onclick = e => { if (e.target.id === "cartModal") $("cartModal").hidden = true; };
@@ -106,7 +118,9 @@ export function mount(active) {
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-add]"); if (!b) return;
     if (!add(b.dataset.add)) return;
-    const old = b.textContent; b.textContent = "Added to cart"; setTimeout(() => { if (b.isConnected) b.textContent = old; }, 900);
+    const old = b.textContent; b.textContent = "Added ✓"; b.classList.add("added");
+    showToast("Added to your cart", "success");
+    setTimeout(() => { if (b.isConnected) { b.textContent = old; b.classList.remove("added"); } }, 1100);
   });
   $("cartRows").onclick = e => {
     const b = e.target.closest("[data-c]"); if (!b) return;
@@ -162,9 +176,44 @@ async function placeOrder(e) {
   }
 }
 
+export function showToast(message, kind = "info") {
+  let host = $("toastHost");
+  if (!host) { document.body.insertAdjacentHTML("beforeend", '<div id="toastHost" aria-live="polite" aria-atomic="true"></div>'); host = $("toastHost"); }
+  const toast = document.createElement("div"); toast.className = `toast ${kind}`; toast.textContent = message;
+  host.appendChild(toast); requestAnimationFrame(() => toast.classList.add("show"));
+  window.setTimeout(() => { toast.classList.remove("show"); window.setTimeout(() => toast.remove(), 300); }, 2600);
+}
+
 export function intro() {
-  try { if (sessionStorage.getItem("nc_intro") || matchMedia("(prefers-reduced-motion: reduce)").matches) return; sessionStorage.setItem("nc_intro", "1"); } catch {}
-  document.body.insertAdjacentHTML("afterbegin", `<div id="intro"><img src="logo.jpg" alt="Nexus Choice" width="220" height="220"></div>`);
-  const go = () => { const i = $("intro"); if (i) { i.classList.add("bye"); setTimeout(() => i.remove(), 600); } };
-  $("intro").onclick = go; setTimeout(go, 1300);
+  // One branded entrance per browser tab; page content still animates on each navigation.
+  try {
+    if (sessionStorage.getItem("nc_intro") || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.body.classList.add("page-ready");
+      return;
+    }
+    sessionStorage.setItem("nc_intro", "1");
+  } catch {}
+  if (document.getElementById("intro")) return;
+  document.body.insertAdjacentHTML("afterbegin", `
+    <div id="intro" role="status" aria-label="Nexus Choice is loading">
+      <div class="intro-orbit orbit-one"></div><div class="intro-orbit orbit-two"></div>
+      <div class="intro-mark">
+        <img class="logo-piece piece-a" src="logo.jpg" alt="" width="160" height="160">
+        <img class="logo-piece piece-b" src="logo.jpg" alt="" width="160" height="160">
+        <img class="logo-piece piece-c" src="logo.jpg" alt="" width="160" height="160">
+        <img class="logo-piece piece-d" src="logo.jpg" alt="Nexus Choice" width="160" height="160">
+        <span class="intro-glow"></span>
+      </div>
+      <div class="intro-wordmark">NEXUS <b>CHOICE</b></div>
+      <div class="intro-caption">DISCOVER SOMETHING BETTER</div>
+      <div class="intro-progress"><i></i></div>
+    </div>`);
+  const overlay = $("intro");
+  const go = () => {
+    if (!overlay || overlay.classList.contains("bye")) return;
+    overlay.classList.add("bye"); document.body.classList.add("page-ready");
+    setTimeout(() => overlay.remove(), 850);
+  };
+  window.setTimeout(go, 2450);
+  overlay.addEventListener("click", go, {once:true});
 }

@@ -11,7 +11,7 @@ const MENU = [
   ["catalog", "Brands and categories", "admin"],
   ["staff", "Staff", "admin"]
 ];
-const show = on => { $("gate").hidden = on; $("app").hidden = !on; };
+const show = on => { $("gate").hidden = on; $("app").hidden = !on; if (on) document.body.classList.add("admin-ready"); };
 
 $("signIn").onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => $("gateMsg").textContent = e.message);
 $("signOut").onclick = () => signOut(auth);

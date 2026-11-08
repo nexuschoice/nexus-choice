@@ -1,5 +1,6 @@
-import {mount, load, S, stockOf, off, brandName, catName, add, openCart, card} from "./site.js";
+import {mount, load, S, stockOf, off, brandName, catName, add, openCart, card, intro} from "./site.js";
 import {$, esc, money} from "./firebase.js";
+intro();
 mount("");
 const box = $("pd"), id = new URLSearchParams(location.search).get("id");
 const meta = (k, v, prop) => {

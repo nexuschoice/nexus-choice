@@ -7,3 +7,10 @@
 @media(max-width:900px){.sidebar{width:220px;flex-basis:220px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-main{padding-inline:22px}}
 @media(max-width:650px){#app{display:block}.sidebar{position:relative;width:100%;height:auto;padding:14px 15px}.brand{padding:0 0 12px}.side-label{margin:13px 4px 7px}#nav{flex-direction:row;overflow:auto;padding-bottom:3px}#nav button{flex:0 0 auto;width:auto;padding:9px 11px;font-size:10px}#nav button:before{display:none}.sidebar-bottom{display:flex;align-items:center;gap:5px;margin-top:10px;padding-top:10px}.who{flex-direction:row;align-items:center;margin:0 0 0 auto;max-width:70%}.who .btn{width:auto;padding:7px 10px}.admin-main{padding:20px 14px 45px}.admin-top{align-items:flex-start}.admin-top h1{font-size:22px}.admin-top .btn{padding:8px 10px}.grid{grid-template-columns:1fr;padding:14px}.grid .full{grid-column:auto}.row{flex-wrap:wrap}.row input{min-width:130px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Admin motion polish */
+.gate-card{animation:adminRise .65s cubic-bezier(.2,.7,.2,1) both}.gate-card img{animation:adminLogo 3s ease-in-out infinite;box-shadow:0 0 0 0 rgba(216,183,122,.28)}
+@keyframes adminRise{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes adminLogo{50%{box-shadow:0 0 0 10px rgba(216,183,122,0);transform:rotate(5deg)}}
+#main{animation:adminRise .35s ease both}.cards .card{transition:transform .22s,border-color .22s,box-shadow .22s}.cards .card:hover{transform:translateY(-4px);border-color:rgba(216,183,122,.45);box-shadow:0 14px 35px rgba(0,0,0,.2)}#nav button:active,.btn:active,.sm:active{transform:scale(.98)}
+.loading{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:linear-gradient(100deg,#111c2e 20%,#1b2a42 40%,#111c2e 60%);background-size:220% 100%;animation:adminShimmer 1.4s linear infinite}@keyframes adminShimmer{to{background-position-x:-220%}}
+@media(prefers-reduced-motion:reduce){.gate-card,.gate-card img,#main,.cards .card,.loading{animation:none!important;transition:none!important}}
