@@ -32,11 +32,16 @@ function draw() {
 
 function card(p) {
   const n = stockOf(p), out = n <= 0, imgs = p.images || [], id = esc(p.id);
+  
+  // Free Delivery නම් පමණක් කාඩ් එක උඩ "Free Delivery" කියලා පොඩි බැජ් එකක් පෙන්වයි. Paid delivery නම් කිසිවක් නොපෙන්වයි.
+  const freeBadge = p.deliveryType === "free" ? `<span class="tag free" style="background: rgba(0, 240, 255, 0.15); color: var(--accent-neon, #00f0ff); border: 1px solid var(--accent-neon, #00f0ff); margin-top: 4px; display: inline-block;">Free Delivery</span>` : "";
+
   return `<article class="card"><span class="tag ${out ? "out" : "in"}">${out ? "Out of stock" : n <= 5 ? "Only " + n + " left" : "In stock"}</span>
   <img id="m-${id}" class="main" src="${esc(imgs[0] || "")}" alt="${esc(p.title)}" width="300" height="220" loading="lazy">
   ${imgs.length > 1 ? `<div class="thumbs">${imgs.map(u => `<img src="${esc(u)}" alt="" width="38" height="38" loading="lazy" data-for="m-${id}">`).join("")}</div>` : ""}
   <div class="body"><h3>${esc(p.title)}</h3>${p.description ? `<p class="desc">${esc(p.description)}</p>` : ""}
     <div class="price"><b>${money(p.discountPrice)}</b>${p.originalPrice ? `<s>${money(p.originalPrice)}</s>` : ""}</div>
+    ${freeBadge}
     <div class="acts"><button class="btn" data-a="buy" data-id="${id}"${out ? " disabled" : ""}>Buy now</button><button class="btn ghost" data-a="add" data-id="${id}"${out ? " disabled" : ""}>Add to cart</button></div>
   </div></article>`;
 }
